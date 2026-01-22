@@ -1,0 +1,33 @@
+.img {
+    background-color: beige;
+    margin: 20px;
+    padding: 2%;
+}
+
+h1 {
+    background-color: bisque;
+    margin: auto;
+    padding: 2%;
+    border: 2px solid black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.Heading {
+    background-color: blanchedalmond;
+    font-family: Arial, Helvetica, sans-serif;
+    text-align: center;
+
+}
+
+.title {
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.education {
+    font-size: medium;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: blanchedalmond;
+    text-align: center;
+
+}
