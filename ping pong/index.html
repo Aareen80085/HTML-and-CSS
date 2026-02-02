@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <svg id="game" width="600" height="400" style="border:2px solid black">
+        <!-- Left Paddle -->
+        <rect id="paddleLeft" x="20" y="150" width="10" height="80" fill="black" />
+
+        <!-- Right Paddle -->
+        <rect id="paddleRight" x="570" y="150" width="10" height="80" fill="black" />
+
+        <!-- Ball -->
+        <circle id="ball" cx="300" cy="200" r="8" fill="black" />
+    </svg>
+</body>
+<link href="script.js">
+<script>
+
+    const ball = document.getElementById("ball");
+    const paddleLeft = document.getElementById("paddleLeft");
+    const paddleRight = document.getElementById("paddleRight");
+
+    let ballX = 300, ballY = 200;
+    let dx = 3, dy = 3;
+
+    let paddleLeftY = 150;
+    let paddleRightY = 150;
+
+    function gameLoop() {
+        // Move ball
+        ballX += dx;
+        ballY += dy;
+
+        // Wall collision (top & bottom)
+        if (ballY <= 8 || ballY >= 392) {
+            dy *= -1;
+        }
+
+        // Paddle collision (left)
+        if (
+            ballX <= 30 &&
+            ballY > paddleLeftY &&
+            ballY < paddleLeftY + 80
+        ) {
+            dx *= -1;
+        }
+
+        // Paddle collision (right)
+        if (
+            ballX >= 570 &&
+            ballY > paddleRightY &&
+            ballY < paddleRightY + 80
+        ) {
+            dx *= -1;
+        }
+
+        // Reset if ball goes out
+        if (ballX < 0 || ballX > 600) {
+            ballX = 300;
+            ballY = 200;
+        }
+
+        // Update SVG
+        ball.setAttribute("cx", ballX);
+        ball.setAttribute("cy", ballY);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+
+</script>
+
+</html>

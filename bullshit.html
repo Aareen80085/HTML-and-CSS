@@ -13,6 +13,10 @@
         border: 2px solid black;
         padding: 15px;
         width: 300px;
+        /* Using flex to center text inside */
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     .box {
@@ -28,7 +32,23 @@
         margin: 30px;
         border: 2px solid black;
         font-style: arial;
+        /* inline-block allows multiple buttons side by side */
+        display: inline-block;
+    }
 
+    /* Horizontal navigation using flexbox */
+    ul {
+        display: flex;
+        gap: 20px;
+        list-style: none;
+        padding: 0;
+    }
+
+    /* Center the table using flex container */
+    .table-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
     }
 </style>
 
@@ -77,35 +97,41 @@
             < </button>
     </a>
 
-    <table border="3">
-        <tr>
-            <th>monke</th>
-            <th>Course</th>
-            <th>Marks</th>
-        </tr>
-        <tr>
-            <td>Terrorist monke</td>
-            <td>HTML</td>
-            <td>85</td>
-        </tr>
-        <tr>
-            <td>Gaming monke</td>
-            <td>CSS</td>
-            <td>90</td>
-        </tr>
-    </table>
+    <!-- Flex container to center the table -->
+    <div class="table-container">
+        <table border="3">
+            <tr>
+                <th>monke</th>
+                <th>Course</th>
+                <th>Marks</th>
+            </tr>
+            <tr>
+                <td>Terrorist monke</td>
+                <td>HTML</td>
+                <td>85</td>
+            </tr>
+            <tr>
+                <td>Gaming monke</td>
+                <td>CSS</td>
+                <td>90</td>
+            </tr>
+        </table>
+    </div>
     <h3>Student Registation</h3>
 
-    <form>
-        Name: <input type="text"><br><br>
-        Email:<input type="" email><br><br>
-        Gender:
-        <input type="radio" name="Gender">Male
-        <input type="radio" name="Gender">Female<br><br>
-        <input type="checkbox" name="Certified freak">Certified
-        freak<br><br>
-        <input type="submit" value="Register">
-    </form>
+    <div class="form">
+        <form>
+            Name: <input type="text"><br><br>
+            Email:<input type="" email><br><br>
+            Gender:
+            <input type="radio" name="Gender">Male
+            <input type="radio" name="Gender">Female<br><br>
+            <input type="checkbox" name="Certified freak">Certified
+            freak<br><br>
+            <input type="submit" value="Register">
+        </form>
+    </div>
+
 
 
 </body>
@@ -126,6 +152,19 @@
         border: black;
         background-color: yellowgreen;
     }
+
+    .form {
+        /* Using flexbox for clean form layout */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 300px;
+        padding: 20px;
+        background-color: #f0f0f0;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
 </style>
+
 
 </html>
