@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Neo-Brutalist 2026</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f2d7f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        canvas {
+            border: 4px solid #000;
+            box-shadow: 8px 8px 0 #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canvas" width="600" height="400"></canvas>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+
+        const colors = {
+            bg: '#fffef0',
+            black: '#000000',
+            yellow: '#ffde59',
+            blue: '#3d5afe',
+            accents: ['#ff3b3b', '#00e676', '#ff6bb3', '#ff9100', '#3d5afe', '#ffde59']
+        };
+
+        let textY = 230;
+        let direction = 1;
+        let currentAccent = colors.blue;
+        let mouseX = 0;
+        let mouseY = 0;
+
+        // Bubbles array
+        const bubbles = [];
+
+        // Spawn initial bubbles
+        for (let i = 0; i < 8; i++) {
+            spawnBubble(Math.random() * canvas.width, Math.random() * canvas.height);
+        }
+
+        function spawnBubble(x, y) {
+            bubbles.push({
+                x: x,
+                y: y,
+                radius: Math.random() * 10 + 5,
+                speed: Math.random() * 1 + 0.5,
+                color: colors.accents[Math.floor(Math.random() * colors.accents.length)]
+            });
+        }
+
+        // Click to spawn bubbles
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Spawn 3-5 bubbles at click position
+            for (let i = 0; i < Math.floor(Math.random() * 3) + 3; i++) {
+                spawnBubble(x + (Math.random() - 0.5) * 40, y + (Math.random() - 0.5) * 40);
+            }
+
+            // Change accent color on click
+            currentAccent = colors.accents[Math.floor(Math.random() * colors.accents.length)];
+        });
+
+        // Track mouse position
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        function drawBackground() {
+            ctx.fillStyle = colors.bg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Yellow accent bar
+            ctx.fillStyle = colors.yellow;
+            ctx.fillRect(0, 0, canvas.width, 50);
+            ctx.strokeStyle = colors.black;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(0, 50);
+            ctx.lineTo(canvas.width, 50);
+            ctx.stroke();
+        }
+
+        function drawBubbles() {
+            for (let i = bubbles.length - 1; i >= 0; i--) {
+                const bubble = bubbles[i];
+
+                ctx.beginPath();
+                ctx.arc(bubble.x, bubble.y, bubble.radius, 0, Math.PI * 2);
+                ctx.fillStyle = bubble.color + '40';
+                ctx.fill();
+                ctx.strokeStyle = colors.black;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                bubble.y -= bubble.speed;
+
+                // Remove bubbles that go off screen
+                if (bubble.y < -20) {
+                    bubbles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawText() {
+            ctx.textAlign = 'center';
+
+            // Main heading
+            ctx.font = '900 28px Arial Black, sans-serif';
+            ctx.fillStyle = colors.black;
+            ctx.fillText('WELCOME TO', canvas.width / 2, 140);
+
+            // Year - with shadow (bouncing) - color changes on click!
+            ctx.fillStyle = colors.black;
+            ctx.font = '900 90px Arial Black, sans-serif';
+            ctx.fillText('2026', canvas.width / 2 + 4, textY + 4);
+            ctx.fillStyle = currentAccent;
+            ctx.fillText('2026', canvas.width / 2, textY);
+
+            // Subtext
+            ctx.font = '700 16px Arial, sans-serif';
+            ctx.fillStyle = colors.black;
+            ctx.fillText('PADHAI HORI HAI?', canvas.width / 2, 290);
+
+            // Simple underline - follows mouse X slightly
+            const underlineOffset = (mouseX - canvas.width / 2) * 0.05;
+            ctx.fillStyle = colors.yellow;
+            ctx.fillRect(canvas.width / 2 - 80 + underlineOffset, 310, 160, 6);
+            ctx.strokeStyle = colors.black;
+            ctx.lineWidth = 2;
+            ctx.strokeRect(canvas.width / 2 - 80 + underlineOffset, 310, 160, 6);
+        }
+
+        function drawFooter() {
+            ctx.fillStyle = colors.black;
+            ctx.fillRect(0, canvas.height - 30, canvas.width, 30);
+            ctx.font = 'bold 12px Arial, sans-serif';
+            ctx.fillStyle = colors.yellow;
+            ctx.textAlign = 'center';
+            ctx.fillText('★ F*ck it We BALL ★', canvas.width / 2, canvas.height - 12);
+        }
+
+        function drawHint() {
+            ctx.font = '600 11px Arial, sans-serif';
+            ctx.fillStyle = 'rgba(0,0,0,0.4)';
+            ctx.textAlign = 'center';
+            ctx.fillText('Click anywhere to spawn bubbles!', canvas.width / 2, 25);
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            drawBackground();
+            drawHint();
+            drawBubbles();
+            drawText();
+            drawFooter();
+
+            // Bounce the year text
+            textY += 0.3 * direction;
+            if (textY > 235 || textY < 225) direction *= -1;
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>

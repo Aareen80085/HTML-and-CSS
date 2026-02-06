@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Canvas Repeating Motion</title>
+</head>
+
+<body>
+
+    <canvas id="c" width="300" height="150" style="border:1px solid rgb(245, 245, 245)"></canvas>
+
+    <script>
+        const canvas = document.getElementById("c");
+        const ctx = canvas.getContext("2d");
+
+        let x = 20;
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // draw box
+            ctx.fillStyle = "red";
+            ctx.fillRect(x, 50, 50, 50);
+
+            // text
+            ctx.font = "16px Arial";
+            ctx.fillText("Canvas", 10, 20);
+
+            // move repeatedly
+            x += 2;
+            if (x > canvas.width) x = -50;
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+
+</body>
+
+</html>

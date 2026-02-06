@@ -1,0 +1,223 @@
+<!-- /*Forms*/ -->
+<!-- <!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(to right, #ff758c, #ff7eb3);
+            font-family: Arial, sans-serif;
+        }
+
+        /* FORM CONTAINER */
+        form {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            width: 300px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* HEADINGS */
+        h2 {
+            text-align: center;
+            color: #ff4f7a;
+        }
+
+        /* INPUTS */
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            margin: 6px 0 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        /* RADIO & CHECKBOX AREA */
+        .options {
+            margin-bottom: 12px;
+        }
+
+        .options label {
+            color: #555;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* BUTTON */
+        button {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(to right, #ff512f, #dd2476);
+            border: none;
+            color: white;
+            font-size: 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <h2>Register</h2><label>Name</label><input type="text" placeholder="Enter name"><label>Email</label><input
+            type="email" placeholder="Enter email">
+        RADIO BUTTONS -->
+<!-- <div class="options"><label>Gender:</label><label><input type="radio" name="gender">Male</label><label><input
+            type="radio" name="gender">Female</label></div>
+CHECKBOXES -->
+<!-- <div class="options"><label>Interests:</label><label><input type="checkbox">Coding</label><label><input
+            type="checkbox">Design</label><label><input type="checkbox">Sports</label></div>
+<button>Register</button>
+</form>
+</body> -->
+
+<!-- </html> -->
+
+<!-- specificity and control -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* ELEMENT selector – general rule */
+        input {
+            border: 2px solid gray;
+            padding: 6px;
+        }
+
+        /* CLASS selector – group rule */
+        .highlight {
+            border-color: orange;
+        }
+
+        /* ID selector – special rule */
+        #username {
+            border-color: blue;
+        }
+
+        /* !important – final authority */
+        .force {
+            border-color: red !important;
+        }
+
+        /* Extra colors */
+        form {
+            background: linear-gradient(to right, #ffecd2, #fcb69f);
+            padding: 20px;
+            width: 300px;
+            border-radius: 10px;
+            font-family: Arial;
+        }
+
+        button {
+            background: linear-gradient(to right, #36d1dc, #5b86e5);
+            border: none;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <form>
+        <h3>Student Registration</h3>
+
+        <!-- CONTROL 1 -->
+        <p>
+            Name:<br>
+            <input type="text" placeholder="Normal input">
+        </p>
+
+        <!-- CONTROL 2 -->
+        <p>
+            Email:<br>
+            <input type="email" class="highlight" placeholder="Class applied">
+        </p>
+
+        <!-- CONTROL 3 -->
+        <p>
+            Username:<br>
+            <input type="text" id="username" class="highlight" placeholder="ID overrides class">
+        </p>
+
+        <!-- CONTROL 4 -->
+        <p>
+            Password:<br>
+            <input type="password" id="username" class="force" placeholder="!important wins">
+        </p>
+
+        <!-- CONTROLS -->
+        <p>
+            Gender:<br>
+            <input type="radio" name="g"> Male
+            <input type="radio" name="g"> Female
+        </p>
+
+        <p>
+            Skills:<br>
+            <input type="checkbox"> HTML
+            <input type="checkbox"> CSS
+        </p>
+
+        <button>Register</button>
+    </form>
+
+</body>
+
+</html>
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        /* Element selector */
+        p {
+            color: red;
+        }
+
+        /* ID selector */
+        #id {
+            color: blue;
+        }
+
+        /* !important overrides everything */
+        .force {
+            color: green !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <p>This is RED (element selector)</p>
+
+
+    <p id="id" class="force">
+        This is GREEN (!important overrides ID)
+    <p id="id">
+        This is BLUE (ID selector overrides element)
+    </p>
+
+    </p>
+
+</body>
+
+</html>
