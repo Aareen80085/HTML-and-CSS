@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notion – Build something beautiful</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #fff;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        @media (max-width: 992px) {
+            canvas {
+                width: 900px;
+                height: 450px;
+            }
+        }
+
+        /* Tablet */
+        @media (max-width: 768px) {
+            canvas {
+                width: 95%;
+                height: 500px;
+            }
+        }
+
+        /* Mobile */
+        @media (max-width: 480px) {
+            canvas {
+                width: 100%;
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="notionCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('notionCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            draw();
+        }
+
+        // --- Color palette ---
+        const colors = {
+            white: '#ffffff',
+            pageBg: '#fbfbfa',
+            black: '#1a1a1a',
+            navText: '#6b6b6b',
+            heroText: '#1a1a1a',
+            subText: '#6b6b6b',
+            navBorder: '#e5e5e5',
+            btnBlack: '#1a1a1a',
+            btnWhite: '#ffffff',
+            logoGray: '#b0b0b0',
+        };
+
+        // --- Helper: Draw rounded rectangle ---
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        // ========== NAVIGATION BAR ==========
+        function drawNav(cw) {
+            const navH = 56;
+            const padX = Math.max(40, cw * 0.06);
+
+            // Nav background
+            ctx.fillStyle = colors.white;
+            ctx.fillRect(0, 0, cw, navH);
+
+            // Nav bottom border
+            ctx.strokeStyle = colors.navBorder;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, navH);
+            ctx.lineTo(cw, navH);
+            ctx.stroke();
+
+            // Notion logo - "N" icon box
+            const logoX = padX;
+            const logoY = 14;
+            const logoSize = 28;
+            ctx.fillStyle = colors.black;
+            roundRect(logoX, logoY, logoSize, logoSize, 4);
+            ctx.fill();
+            ctx.fillStyle = colors.white;
+            ctx.font = 'bold 18px "Segoe UI", Arial, sans-serif';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('N', logoX + 8, logoY + logoSize / 2 + 1);
+
+            // "Notion" text
+            ctx.fillStyle = colors.black;
+            ctx.font = '600 18px "Segoe UI", Arial, sans-serif';
+            ctx.fillText('Notion', logoX + logoSize + 8, navH / 2);
+
+            // Nav links
+            const links = ['Product', 'Teams', 'Individuals', 'Pricing'];
+            ctx.font = '400 14px "Segoe UI", Arial, sans-serif';
+            ctx.fillStyle = colors.navText;
+            let linkX = logoX + 150;
+            links.forEach(link => {
+                ctx.fillText(link, linkX, navH / 2);
+                linkX += ctx.measureText(link).width + 28;
+            });
+
+            // Right side
+            const rightPad = padX;
+            const btnText = 'Get Notion free';
+            ctx.font = '600 14px "Segoe UI", Arial, sans-serif';
+            const btnW = ctx.measureText(btnText).width + 32;
+            const btnH = 32;
+            const btnX = cw - rightPad - btnW;
+            const btnY = (navH - btnH) / 2;
+            ctx.fillStyle = colors.btnBlack;
+            roundRect(btnX, btnY, btnW, btnH, 6);
+            ctx.fill();
+            ctx.fillStyle = colors.btnWhite;
+            ctx.fillText(btnText, btnX + 16, navH / 2 + 1);
+
+            ctx.fillStyle = colors.navText;
+            ctx.font = '400 14px "Segoe UI", Arial, sans-serif';
+            const loginText = 'Log in';
+            const loginW = ctx.measureText(loginText).width;
+            ctx.fillText(loginText, btnX - loginW - 24, navH / 2);
+
+            const demoText = 'Request a demo';
+            const demoW = ctx.measureText(demoText).width;
+            ctx.fillText(demoText, btnX - loginW - 24 - demoW - 24, navH / 2);
+        }
+
+
+
+        // ========== FLOATING UI ELEMENTS ==========
+        function drawFloatingElements(cw) {
+            // Position floating elements around the right-side characters
+            const rightStart = cw * 0.55;
+
+            // Floating document (above characters)
+            ctx.save();
+            ctx.translate(rightStart + 20, 120);
+            ctx.rotate(-0.12);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.08)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 3;
+            roundRect(0, 0, 48, 58, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.fillStyle = '#d4d4d4';
+            for (let i = 0; i < 4; i++) {
+                ctx.fillRect(8, 12 + i * 11, 32, 2);
+            }
+            ctx.restore();
+
+            // Floating checklist (top-right of characters)
+            ctx.save();
+            ctx.translate(rightStart + 340, 130);
+            ctx.rotate(0.1);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.08)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetY = 3;
+            roundRect(0, 0, 56, 52, 4);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.shadowOffsetY = 0;
+            ctx.strokeStyle = '#d4d4d4';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < 3; i++) {
+                const cy = 12 + i * 14;
+                roundRect(6, cy - 3, 9, 9, 2);
+                ctx.stroke();
+                if (i < 2) {
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(8, cy + 3);
+                    ctx.lineTo(10, cy + 5);
+                    ctx.lineTo(14, cy);
+                    ctx.stroke();
+                    ctx.strokeStyle = '#d4d4d4';
+                    ctx.lineWidth = 1.5;
+                }
+                ctx.fillStyle = '#e0e0e0';
+                ctx.fillRect(20, cy, 28, 2);
+            }
+            ctx.restore();
+
+            // Floating pencil (right side)
+            ctx.save();
+            ctx.translate(rightStart + 380, 280);
+            ctx.rotate(0.45);
+            ctx.fillStyle = '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(5, -26);
+            ctx.lineTo(10, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#f97316';
+            ctx.fillRect(0, 0, 10, 5);
+            ctx.fillStyle = '#fde68a';
+            ctx.beginPath();
+            ctx.moveTo(3, -24);
+            ctx.lineTo(5, -31);
+            ctx.lineTo(7, -24);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Sparkles around characters
+            drawSparkle(rightStart + 60, 200, 8, '#fbbf24');
+            drawSparkle(rightStart + 300, 220, 6, '#fbbf24');
+
+            // Floating image card (above left character group)
+            ctx.save();
+            ctx.translate(rightStart - 30, 180);
+            ctx.rotate(-0.08);
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = 'rgba(0,0,0,0.06)';
+            ctx.shadowBlur = 8;
+            roundRect(0, 0, 40, 35, 3);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = '#a3d9a5';
+            ctx.beginPath();
+            ctx.moveTo(6, 28);
+            ctx.lineTo(15, 12);
+            ctx.lineTo(24, 28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#7ec87e';
+            ctx.beginPath();
+            ctx.moveTo(18, 28);
+            ctx.lineTo(26, 16);
+            ctx.lineTo(34, 28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ========== ILLUSTRATED CHARACTERS ==========
+        // Characters positioned on the RIGHT side of the screen
+
+        function drawCharacters(cw) {
+            const rightStart = cw * 0.55;
+            const centerY = 380;
+            // 4 characters arranged on the right half
+            drawSittingPerson(rightStart + 30, centerY + 40);
+            drawStandingPersonWithTablet(rightStart + 150, centerY);
+            drawExcitedPerson(rightStart + 270, centerY - 20);
+            drawPointingPerson(rightStart + 380, centerY + 20);
+        }
+
+        function drawSittingPerson(x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(x, y - 55, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#fde68a';
+            ctx.fill();
+            ctx.stroke();
+
+            // Hair
+            ctx.fillStyle = '#78350f';
+            ctx.beginPath();
+            ctx.arc(x, y - 62, 14, Math.PI * 1.1, Math.PI * 1.9);
+            ctx.fill();
+
+            // Body / torso
+            ctx.fillStyle = '#93c5fd';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 41);
+            ctx.lineTo(x + 10, y - 41);
+            ctx.lineTo(x + 11, y - 18);
+            ctx.lineTo(x - 11, y - 18);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Arms reaching toward laptop
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 35);
+            ctx.lineTo(x - 22, y - 18);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 35);
+            ctx.lineTo(x + 22, y - 18);
+            ctx.stroke();
+
+            // Laptop base
+            ctx.fillStyle = '#e5e5e5';
+            roundRect(x - 20, y - 18, 40, 5, 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Laptop screen
+            ctx.fillStyle = '#dbeafe';
+            roundRect(x - 16, y - 35, 32, 17, 2);
+            ctx.fill();
+            ctx.strokeStyle = '#bbb';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2.5;
+
+            // Chair / seat line
+            ctx.beginPath();
+            ctx.moveTo(x - 18, y - 10);
+            ctx.lineTo(x + 18, y - 10);
+            ctx.stroke();
+
+            // Legs
+            ctx.beginPath();
+            ctx.moveTo(x - 6, y - 10);
+            ctx.lineTo(x - 16, y + 20);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 6, y - 10);
+            ctx.lineTo(x + 16, y + 20);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawStandingPersonWithTablet(x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(x, y - 70, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#fde68a';
+            ctx.fill();
+            ctx.stroke();
+
+            // Curly/afro hair
+            ctx.fillStyle = '#1c1917';
+            for (let i = 0; i < 8; i++) {
+                const angle = Math.PI + (i / 7) * Math.PI;
+                ctx.beginPath();
+                ctx.arc(x + Math.cos(angle) * 12, y - 74 + Math.sin(angle) * 8, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Torso (orange shirt)
+            ctx.fillStyle = '#f97316';
+            ctx.beginPath();
+            ctx.moveTo(x - 11, y - 56);
+            ctx.lineTo(x + 11, y - 56);
+            ctx.lineTo(x + 13, y - 28);
+            ctx.lineTo(x - 13, y - 28);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Arm holding tablet up
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 48);
+            ctx.lineTo(x + 30, y - 75);
+            ctx.stroke();
+
+            // Tablet held up
+            ctx.fillStyle = '#dbeafe';
+            ctx.strokeStyle = '#333';
+            roundRect(x + 22, y - 98, 22, 28, 3);
+            ctx.fill();
+            ctx.stroke();
+            // Lines on tablet
+            ctx.fillStyle = '#93c5fd';
+            ctx.fillRect(x + 26, y - 92, 14, 2);
+            ctx.fillRect(x + 26, y - 87, 14, 2);
+            ctx.fillRect(x + 26, y - 82, 10, 2);
+
+            // Other arm relaxed
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 48);
+            ctx.lineTo(x - 24, y - 30);
+            ctx.stroke();
+
+            // Pants
+            ctx.fillStyle = '#1e3a5f';
+            ctx.beginPath();
+            ctx.moveTo(x - 13, y - 28);
+            ctx.lineTo(x + 13, y - 28);
+            ctx.lineTo(x + 15, y - 8);
+            ctx.lineTo(x - 15, y - 8);
+            ctx.closePath();
+            ctx.fill();
+
+            // Legs
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y - 8);
+            ctx.lineTo(x - 14, y + 28);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y - 8);
+            ctx.lineTo(x + 14, y + 28);
+            ctx.stroke();
+
+            // Shoes
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(x - 14, y + 30, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + 14, y + 30, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawExcitedPerson(x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(x, y - 75, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#d2a679';
+            ctx.fill();
+            ctx.stroke();
+
+            // Hair
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.arc(x, y - 82, 14, Math.PI * 1.05, Math.PI * 1.95);
+            ctx.fill();
+
+            // Torso (purple)
+            ctx.fillStyle = '#8b5cf6';
+            ctx.beginPath();
+            ctx.moveTo(x - 11, y - 61);
+            ctx.lineTo(x + 11, y - 61);
+            ctx.lineTo(x + 13, y - 33);
+            ctx.lineTo(x - 13, y - 33);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Arms raised up
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 53);
+            ctx.lineTo(x - 32, y - 90);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 53);
+            ctx.lineTo(x + 32, y - 90);
+            ctx.stroke();
+
+            // Hands
+            ctx.fillStyle = '#d2a679';
+            ctx.beginPath();
+            ctx.arc(x - 32, y - 92, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 32, y - 92, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Sparkles
+            drawSparkle(x - 42, y - 102, 6, '#fbbf24');
+            drawSparkle(x + 42, y - 102, 6, '#fbbf24');
+            drawSparkle(x, y - 100, 4, '#fbbf24');
+
+            // Pants
+            ctx.fillStyle = '#374151';
+            ctx.beginPath();
+            ctx.moveTo(x - 13, y - 33);
+            ctx.lineTo(x + 13, y - 33);
+            ctx.lineTo(x + 15, y - 12);
+            ctx.lineTo(x - 15, y - 12);
+            ctx.closePath();
+            ctx.fill();
+
+            // Legs
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y - 12);
+            ctx.lineTo(x - 14, y + 24);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y - 12);
+            ctx.lineTo(x + 14, y + 24);
+            ctx.stroke();
+
+            // Shoes
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(x - 14, y + 26, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + 14, y + 26, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawPointingPerson(x, y) {
+            ctx.save();
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+
+            // Head
+            ctx.beginPath();
+            ctx.arc(x, y - 65, 14, 0, Math.PI * 2);
+            ctx.fillStyle = '#fde68a';
+            ctx.fill();
+            ctx.stroke();
+
+            // Hair bun
+            ctx.fillStyle = '#92400e';
+            ctx.beginPath();
+            ctx.arc(x, y - 73, 13, Math.PI * 1.05, Math.PI * 1.95);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + 2, y - 82, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Blouse (green)
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath();
+            ctx.moveTo(x - 11, y - 51);
+            ctx.lineTo(x + 11, y - 51);
+            ctx.lineTo(x + 13, y - 25);
+            ctx.lineTo(x - 13, y - 25);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Arm pointing right
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y - 43);
+            ctx.lineTo(x + 38, y - 52);
+            ctx.lineTo(x + 52, y - 55);
+            ctx.stroke();
+
+            // Hand
+            ctx.fillStyle = '#fde68a';
+            ctx.beginPath();
+            ctx.arc(x + 52, y - 55, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Arm on hip
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 10, y - 43);
+            ctx.lineTo(x - 20, y - 28);
+            ctx.lineTo(x - 13, y - 25);
+            ctx.stroke();
+
+            // Skirt
+            ctx.fillStyle = '#1e3a5f';
+            ctx.beginPath();
+            ctx.moveTo(x - 15, y - 25);
+            ctx.lineTo(x + 15, y - 25);
+            ctx.lineTo(x + 20, y - 5);
+            ctx.lineTo(x - 20, y - 5);
+            ctx.closePath();
+            ctx.fill();
+
+            // Legs
+            ctx.strokeStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(x - 8, y - 5);
+            ctx.lineTo(x - 12, y + 24);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y - 5);
+            ctx.lineTo(x + 12, y + 24);
+            ctx.stroke();
+
+            // Shoes
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.ellipse(x - 12, y + 26, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(x + 12, y + 26, 7, 3, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        function drawSparkle(x, y, size, color) {
+            ctx.save();
+            ctx.fillStyle = color || '#fbbf24';
+            ctx.beginPath();
+            ctx.moveTo(x, y - size);
+            ctx.lineTo(x + size * 0.3, y - size * 0.3);
+            ctx.lineTo(x + size, y);
+            ctx.lineTo(x + size * 0.3, y + size * 0.3);
+            ctx.lineTo(x, y + size);
+            ctx.lineTo(x - size * 0.3, y + size * 0.3);
+            ctx.lineTo(x - size, y);
+            ctx.lineTo(x - size * 0.3, y - size * 0.3);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ========== HERO TEXT SECTION ==========
+        function drawHeroText(cw) {
+            const padX = Math.max(60, cw * 0.08);
+            // Place hero text on the LEFT side, vertically centered in the content area
+            const heroY = 200;
+
+            // Main heading
+            ctx.fillStyle = colors.heroText;
+            ctx.font = 'bold 64px Georgia, "Times New Roman", serif';
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+
+            ctx.fillText('Build', padX, heroY);
+            ctx.fillText('something', padX, heroY + 74);
+            ctx.fillText('beautiful.', padX, heroY + 148);
+
+            // Subtitle
+            ctx.font = '400 18px "Segoe UI", Arial, sans-serif';
+            ctx.fillStyle = colors.subText;
+            ctx.fillText('Notion helps you and your team get more', padX, heroY + 232);
+            ctx.fillText('done with peace of mind.', padX, heroY + 256);
+
+            // CTA Button - "Get Started"
+            const btnW = 160;
+            const btnH = 45;
+            const btnY = heroY + 295;
+            ctx.font = '600 16px "Segoe UI", Arial, sans-serif';
+
+            ctx.fillStyle = '#2d7ff9';
+            roundRect(padX, btnY, btnW, btnH, 8);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Get Started', padX + btnW / 2, btnY + btnH / 2);
+
+            // Secondary Button - "Learn More"
+            const btn2W = 150;
+            const btn2X = padX + btnW + 16;
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1.5;
+            roundRect(btn2X, btnY, btn2W, btnH, 8);
+            ctx.stroke();
+            ctx.fillStyle = '#000';
+            ctx.fillText('Learn More', btn2X + btn2W / 2, btnY + btnH / 2);
+
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'top';
+        }
+
+        // ========== COMPANY LOGOS ==========
+        function drawLogos(cw, ch) {
+            const cx = cw / 2;
+            const logoY = ch - 60;
+
+            ctx.font = '400 12px "Segoe UI", Arial, sans-serif';
+            ctx.fillStyle = colors.logoGray;
+            ctx.textAlign = 'center';
+            ctx.fillText('Trusted by teams at', cx, logoY - 30);
+
+            const logos = [
+                { text: 'airbnb', font: '600 17px "Segoe UI", Arial, sans-serif' },
+                { text: 'NETFLIX', font: '700 15px "Segoe UI", Arial, sans-serif' },
+                { text: 'NIKE', font: 'bold 19px "Segoe UI", Arial, sans-serif' },
+                { text: 'Figma', font: '500 17px "Segoe UI", Arial, sans-serif' },
+            ];
+
+            const totalW = 480;
+            const spacing = totalW / (logos.length + 1);
+            const startX = cx - totalW / 2;
+
+            logos.forEach((logo, i) => {
+                ctx.font = logo.font;
+                ctx.fillStyle = colors.logoGray;
+                ctx.fillText(logo.text, startX + spacing * (i + 1), logoY);
+            });
+
+            ctx.textAlign = 'left';
+        }
+
+        // ========== MAIN DRAW ==========
+        function draw() {
+            const cw = canvas.width;
+            const ch = canvas.height;
+
+            // Page background
+            ctx.fillStyle = colors.pageBg;
+            ctx.fillRect(0, 0, cw, ch);
+
+            // Draw layers in correct order
+            drawFloatingElements(cw);
+            drawCharacters(cw);
+            drawNav(cw);
+            drawHeroText(cw);
+            drawLogos(cw, ch);
+        }
+
+        resizeCanvas();
+
+        // Initialize
+        window.addEventListener("resize", resizeCanvas);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Offline Scoring Form</title>
+  <link rel="stylesheet" href="style3.css">
+</head>
+
+<body>
+
+  <div class="sheet">
+
+    <h1>Student Evaluation Form</h1>
+
+    <div class="info-grid">
+      <div>
+        <label>Student Name</label>
+        <input type="text">
+      </div>
+      <div>
+        <label>Roll No</label>
+        <input type="text">
+      </div>
+      <div>
+        <label>Evaluator Name</label>
+        <input type="text">
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date">
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Criteria</th>
+          <th>Excellent (5)</th>
+          <th>Good (4)</th>
+          <th>Average (3)</th>
+          <th>Poor (2)</th>
+          <th>Very Poor (1)</th>
+          <th>Just Give up (-5)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Knowledge</td>
+          <td><input type="radio" name="k"></td>
+          <td><input type="radio" name="k"></td>
+          <td><input type="radio" name="k"></td>
+          <td><input type="radio" name="k"></td>
+          <td><input type="radio" name="k"></td>
+          <td><input type="radio" name="k"></td>
+        </tr>
+        <tr>
+          <td>Presentation</td>
+          <td><input type="radio" name="p"></td>
+          <td><input type="radio" name="p"></td>
+          <td><input type="radio" name="p"></td>
+          <td><input type="radio" name="p"></td>
+          <td><input type="radio" name="p"></td>
+          <td><input type="radio" name="p"></td>
+        </tr>
+        <tr>
+          <td>Confidence</td>
+          <td><input type="radio" name="c"></td>
+          <td><input type="radio" name="c"></td>
+          <td><input type="radio" name="c"></td>
+          <td><input type="radio" name="c"></td>
+          <td><input type="radio" name="c"></td>
+          <td><input type="radio" name="c"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="score-box">
+      <label>Total Score</label>
+      <input type="text">
+    </div>
+
+    <div class="remarks">
+      <label>Remarks</label>
+      <textarea rows="4"></textarea>
+    </div>
+
+    <div class="sign">
+      <div>
+        <p>Evaluator Signature</p>
+        <div class="line"></div>
+      </div>
+      <div>
+        <p>Authority Signature</p>
+        <div class="line"></div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+
+</html>
