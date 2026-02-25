@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diet Coke Studios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="ambient-blob top"></div>
+        <div class="ambient-blob bottom"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"
+                class="logo-icon-svg">
+                <rect width="36" height="36" rx="8" fill="url(#dcGrad)"></rect>
+                <path d="M12 10C16 8 20 8 24 10V26C20 28 16 28 12 26V10Z" fill="url(#dcSilver)"></path>
+                <path d="M12 14H24M12 22H24" stroke="url(#dcRed)" stroke-width="2"></path>
+                <text x="18" y="20" font-family="'Bangers', cursive" font-size="14" fill="#111" text-anchor="middle"
+                    font-weight="900">DC</text>
+                <defs>
+                    <linearGradient id="dcGrad" x1="0" y1="0" x2="36" y2="36">
+                        <stop offset="0%" stop-color="#ff0000"></stop>
+                        <stop offset="100%" stop-color="#800000"></stop>
+                    </linearGradient>
+                    <linearGradient id="dcSilver" x1="12" y1="10" x2="24" y2="26">
+                        <stop offset="0%" stop-color="#ffffff"></stop>
+                        <stop offset="100%" stop-color="#aaaaaa"></stop>
+                    </linearGradient>
+                    <linearGradient id="dcRed" x1="12" y1="14" x2="24" y2="22">
+                        <stop offset="0%" stop-color="#ff0000"></stop>
+                        <stop offset="100%" stop-color="#cc0000"></stop>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <span style="margin-left:8px;">Diet Coke <span>Studios</span></span>
+        </div>
+        <a href="#generator" class="nav-btn">Launch App</a>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <h1>Create the Next Viral Meme.</h1>
+        <p>Upload any image and let our generator assign the perfect, punchy caption. Professional quality memes,
+            absolute zero effort.</p>
+        <div class="hero-actions">
+            <a href="#generator" class="btn-primary">
+                Start Creating
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <!-- App Section -->
+    <section id="generator" class="app-section">
+        <div class="glass-panel">
+            <div class="app-header">
+                <h2>Meme Generator</h2>
+                <p>Upload a fresh image below to get started.</p>
+            </div>
+
+            <!-- Upload Area -->
+            <div class="upload-area" id="dropzone">
+                <div class="upload-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <h3>Drag & Drop your image</h3>
+                <p>Supports PNG, JPG, WEBP up to 5MB</p>
+                <div class="browse-btn">Browse Files</div>
+                <input type="file" id="image-input" accept="image/png, image/jpeg, image/webp">
+            </div>
+
+            <!-- Workspace Editor -->
+            <div class="workspace" id="workspace">
+
+                <!-- Canvas -->
+                <div class="canvas-container">
+                    <canvas id="meme-canvas"></canvas>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-panel">
+                    <button class="generate-btn" id="generate-btn">
+                        <span>✨ Generate Caption</span>
+                        <div class="spinner" id="loading-spinner"></div>
+                    </button>
+
+                    <div class="control-group">
+                        <label for="caption-text">Meme Text</label>
+                        <textarea id="caption-text" placeholder="Your generated caption will appear here..."></textarea>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Placement</label>
+                            <div class="toggle-group" id="position-toggles">
+                                <label class="toggle-label" data-pos="top">
+                                    <input type="radio" name="position" value="top"> Top
+                                </label>
+                                <label class="toggle-label" data-pos="center">
+                                    <input type="radio" name="position" value="center"> Ctr
+                                </label>
+                                <label class="toggle-label active" data-pos="bottom">
+                                    <input type="radio" name="position" value="bottom" checked> Btm
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Text Color</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="text-color" value="#ffffff">
+                                <div id="color-preview" class="color-preview" style="background-color: #ffffff;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group pt-2">
+                        <div class="font-size-header">
+                            <label>Font Size</label>
+                            <span class="font-size-val"><span id="font-size-val">40</span>px</span>
+                        </div>
+                        <input type="range" id="font-size" min="20" max="80" value="40">
+                    </div>
+
+                    <div class="actions">
+                        <button id="download-btn" class="btn-download">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download Meme
+                        </button>
+                        <button id="new-image-btn" class="btn-reset">Start Over</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 Diet Coke Studios. Built for the modern web.</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        </span>
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
