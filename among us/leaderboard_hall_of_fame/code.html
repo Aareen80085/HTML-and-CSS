@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Press+Start+2P&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f6bff",
+                        "background-light": "#f6f5f8",
+                        "background-dark": "#120f23",
+                        "gold": "#FFD700",
+                        "silver": "#C0C0C0",
+                        "bronze": "#CD7F32"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "pixel": ["'Press Start 2P'", "cursive"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .pixel-shimmer {
+            position: relative;
+            display: inline-block;
+        }
+        .pixel-shimmer::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            background-size: 200% 100%;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<header class="flex items-center justify-between border-b border-solid border-primary/10 px-4 md:px-10 py-6 mb-8">
+<div class="flex items-center gap-4">
+<div class="flex flex-col">
+<h1 class="font-pixel text-lg md:text-2xl text-primary pixel-shimmer uppercase tracking-tighter">
+                                    Hall of Fame <span class="text-gold">✦</span>
+</h1>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center justify-center rounded-lg h-10 bg-primary/10 text-primary hover:bg-primary/20 px-3 transition-colors">
+<span class="material-symbols-outlined">military_tech</span>
+</button>
+<button class="flex items-center justify-center rounded-lg h-10 bg-primary/10 text-primary hover:bg-primary/20 px-3 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-12 items-end">
+<div class="order-2 md:order-1 flex flex-col items-center gap-3 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border-b-4 border-silver">
+<div class="relative">
+<div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-silver">
+<img class="w-full h-full object-cover" data-alt="Silver tier crewmate avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAz1uBMVChdfgmBhX9NoJFp17ea_Dwo9Qyxq1154EQotjCtbgzB6q6O0OEp-n5VVveLVrAeK4l-IqKj9diCnhlEQ6NUFjlQp5-C1SFCMr2-NvDAs9Zj-2_7Q_lkcMAoLVdX_3VeAYWVdTocLsstWuI7umiFjsFge8ckJGwSS1Q1s-uC-vcm2je5ZVhpLfY5aVtBptStXzqt1GXSv83jLoCEjxAFyDaw4CAmIhLshRYtaeu9g8A_B-5bD1pq38QUN463-FONHDgXSeHg"/>
+</div>
+<div class="absolute -top-3 -right-2 bg-silver text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">Silver</div>
+</div>
+<div class="text-center">
+<p class="font-bold text-lg">NullPointer</p>
+<p class="text-xs text-slate-500 font-medium uppercase">Senior Engineer</p>
+</div>
+<div class="bg-silver/10 px-4 py-1 rounded-full">
+<p class="text-silver font-bold text-sm">842,500 XP</p>
+</div>
+<p class="font-pixel text-[10px] text-silver mt-2">#2</p>
+</div>
+<div class="order-1 md:order-2 flex flex-col items-center gap-4 bg-white dark:bg-slate-800 p-8 rounded-xl shadow-xl border-b-8 border-gold scale-110 z-10">
+<div class="relative">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 text-gold">
+<span class="material-symbols-outlined !text-5xl">workspace_premium</span>
+</div>
+<div class="w-32 h-32 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-gold ring-4 ring-gold/20">
+<img class="w-full h-full object-cover" data-alt="Gold tier crewmate avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrnkrE8LRsn2frKZLlqf12Aq7jPyNb6ulbpqoTpMz6H_yVJCqgP6FsS_MbXRVqjkCGSGPi4E2kg-xwfyPfG3uy7unICj1_X3Pwe-4SskXEoQef7tzKAw6-lSP0DYuK9HkuDyEzzZuHxCTYUj58iKsdBsbMf5RtusHl15oJ1iPXT63PZDMWgK_lRY5qFU03tiQBwcNzKDUY7PHG7Pw4njnbFXJsn8nrMP1HTABpMK4eURqL-lB_MmmnM-xe26tRcsPFHIJx-i0ckdvm"/>
+</div>
+<div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gold text-slate-900 text-[10px] font-pixel px-3 py-1 rounded-full">LVL 99</div>
+</div>
+<div class="text-center">
+<p class="font-bold text-2xl tracking-tight">StackOverflow_God</p>
+<p class="text-sm text-primary font-semibold uppercase tracking-widest">Architect</p>
+</div>
+<div class="bg-gold/20 px-6 py-2 rounded-full">
+<p class="text-gold dark:text-gold font-bold text-lg">1,240,000 XP</p>
+</div>
+<p class="font-pixel text-xs text-gold mt-2">RANK #1</p>
+</div>
+<div class="order-3 flex flex-col items-center gap-3 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border-b-4 border-bronze">
+<div class="relative">
+<div class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border-4 border-bronze">
+<img class="w-full h-full object-cover" data-alt="Bronze tier crewmate avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDq-u8ZkU8Kv5jwCZ6jADLoXMguzcFobZkSVsTEP34SOcMkteqfiljW228Utj2nCZjPuESJTNKPLyHilO21uUsQcCr-iahkKVDGUpCIjl6BRl1Fbdlsrc_PYUXD7JNVd3gXj_KbNlMetXynAvAwvNuEV1fgJwY7RshxkdDrhJp75J0pOmVRnWacIXCLHxiVyrJyGKou0UO_xv_ALA9wZ642V9MrjLSGNqInp_2pid3IqWTVmETIStWP09RkOLR0eS1x09aH6COyNAoc"/>
+</div>
+<div class="absolute -top-3 -right-2 bg-bronze text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-tighter">Bronze</div>
+</div>
+<div class="text-center">
+<p class="font-bold text-lg">GitPushForce</p>
+<p class="text-xs text-slate-500 font-medium uppercase">Mid-Level Dev</p>
+</div>
+<div class="bg-bronze/10 px-4 py-1 rounded-full">
+<p class="text-bronze font-bold text-sm">710,200 XP</p>
+</div>
+<p class="font-pixel text-[10px] text-bronze mt-2">#3</p>
+</div>
+</div>
+<div class="px-4 overflow-hidden mb-12">
+<div class="flex flex-col gap-2">
+<div class="grid grid-cols-12 gap-4 px-6 py-3 text-slate-400 text-xs font-bold uppercase tracking-widest">
+<div class="col-span-1">Rank</div>
+<div class="col-span-4">Player</div>
+<div class="col-span-2">Level</div>
+<div class="col-span-3">XP Progress</div>
+<div class="col-span-2 text-right">Wins</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4 bg-white dark:bg-slate-800 px-6 py-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">
+<div class="col-span-1 font-pixel text-xs text-slate-400">04</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Player avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKlh1RNBdqvbk_T0fE5XFu6WomJ4Ci_XWDc35GL_znpY7tjSatIxGj_IfSZS1-S6px3vIsnPjtbIosz0P_BwHQ73i9AMe1QTWvMAUSlTM-P0GllESjZ925VyY2LvGxpQ47aqtvJWBil8AtFt3vyAXpVPyWOcKufj24dpUoUGMF-VGDVLEM-Lm1rnETJl4TBcY-Fv4FaqzHobYeU_Sl4RpLcq0OAnCf9cJj7mZQEo4C70WhKHfJ4pqxrU7XXw9uWzYIB4NDD4bAKBYv"/>
+</div>
+<span class="font-semibold">DockerMaster</span>
+</div>
+<div class="col-span-2">
+<span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded font-bold uppercase">Senior</span>
+</div>
+<div class="col-span-3">
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+<div class="bg-gold h-full w-[85%]"></div>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">640k XP</p>
+</div>
+<div class="col-span-2 text-right font-bold text-primary">142</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4 bg-primary/10 px-6 py-4 rounded-xl shadow-md border-2 border-primary/30 relative">
+<div class="absolute -left-2 top-1/2 -translate-y-1/2 bg-primary text-white text-[8px] font-pixel px-1 py-2 rounded-l-sm vertical-text">YOU</div>
+<div class="col-span-1 font-pixel text-xs text-primary">24</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center border-2 border-primary overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Your crewmate avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6aRFJy6INXd40h4vk8Z-p164-0YR26UNuhltESmug_vJrb8IUe34O4xu-7ITH07ZqNwI7Tx3JHPAzHR0ZYcZX5K32e4WXkLBIkm0pT7KNpDJqrYUoAvNshn_uPrVxfIh4_tG4Mi8LUINA_MfYCsTGO15qoZbWk8cwvN5z5cfYE-Y6mFbM9Z2Agon7mOo7vsSYsDvbCqbrRif5x7bqKE1SHKACAc4bCWn16t27VpULu4d_D30CJ5Xl7lbxsdtkK1JJP9hscdFL5vtx"/>
+</div>
+<span class="font-bold text-primary">Crewmate_42</span>
+</div>
+<div class="col-span-2">
+<span class="text-[10px] bg-primary text-white px-2 py-1 rounded font-bold uppercase">Junior Dev</span>
+</div>
+<div class="col-span-3">
+<div class="w-full bg-primary/20 h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+<p class="text-[10px] text-primary/60 mt-1">125k XP</p>
+</div>
+<div class="col-span-2 text-right font-bold text-primary">28</div>
+</div>
+<div class="grid grid-cols-12 items-center gap-4 bg-white dark:bg-slate-800 px-6 py-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 opacity-80">
+<div class="col-span-1 font-pixel text-xs text-slate-400">25</div>
+<div class="col-span-4 flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Player avatar icon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDV0_LPGrOQVwy4HLXX0UnxlV-OW60ICz2fDaoPZDGBsHxK1S4Q6QCuRbLjgojt4eIbrTNCw5k_90d_AdSPaO49lgWBqQ3kAT3VHObpZeVQUZr_xd4AH0ogftyMA6KaymNOiPrAQKxf-Mxh1Q1HK6KeSwL_VbAFgi1LfN8RW8gv0hJHL8HhKThdrpKTdGpQoqQkPjX2FOfxBtNsZ6pGUbf-XoGpWz1dg-oB494Lp_vEF7E5Gqe44A_kticPIeidYTApGt7PHw2lWdIr"/>
+</div>
+<span class="font-semibold text-slate-600 dark:text-slate-400">CoffeeRefactor</span>
+</div>
+<div class="col-span-2">
+<span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded font-bold uppercase">Junior Dev</span>
+</div>
+<div class="col-span-3">
+<div class="w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+<div class="bg-primary/40 h-full w-[90%]"></div>
+</div>
+<p class="text-[10px] text-slate-400 mt-1">118k XP</p>
+</div>
+<div class="col-span-2 text-right font-bold text-slate-400">12</div>
+</div>
+</div>
+</div>
+<div class="flex flex-wrap gap-4 px-4 pb-12">
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+<p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Your Percentile</p>
+<div class="flex items-baseline gap-2">
+<p class="text-primary tracking-tight text-3xl font-bold">Top 12%</p>
+<span class="material-symbols-outlined text-green-500 text-sm">trending_up</span>
+</div>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+<p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Global Players</p>
+<p class="text-slate-900 dark:text-slate-100 tracking-tight text-3xl font-bold">42,801</p>
+</div>
+<div class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+<p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Season Ends</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary size-5">timer</span>
+<p class="text-slate-900 dark:text-slate-100 tracking-tight text-2xl font-bold">14d 06h</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

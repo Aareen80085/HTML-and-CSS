@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=VT323&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f6bff",
+                        "success": "#22c55e",
+                        "gold": "#f59e0b",
+                        "background-light": "#f0fdf4",
+                        "background-dark": "#0a0f0b",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "pixel": ["VT323", "monospace"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .pixel-border {
+            box-shadow: 
+                0 -4px 0 0 #000,
+                0 4px 0 0 #000,
+                -4px 0 0 0 #000,
+                4px 0 0 0 #000;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between border-b border-primary/10 px-6 py-4 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+<div class="flex items-center gap-3 text-primary">
+<div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<h2 class="text-slate-900 dark:text-slate-100 text-xl font-bold leading-tight tracking-tight font-pixel text-2xl">Code Among Us</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+<span class="material-symbols-outlined text-primary text-sm">stars</span>
+<span class="text-primary font-bold text-sm">Level 15</span>
+</div>
+<button class="flex items-center justify-center rounded-full size-10 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-primary/20 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full">
+<div class="text-center mb-10 space-y-4">
+<div class="inline-flex items-center justify-center px-4 py-1 rounded-full bg-success/20 text-success font-bold text-sm mb-2 border border-success/30 uppercase tracking-widest">
+                        Victory
+                    </div>
+<h1 class="text-success text-5xl md:text-7xl font-pixel leading-none uppercase drop-shadow-sm">
+                        BUG FIXED! <br/> CODE PUSHED ✓
+                    </h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg font-medium">The Impostor couldn't merge their malicious PR!</p>
+</div>
+<div class="relative w-full max-w-md aspect-video mb-12 flex items-center justify-center">
+<div class="absolute inset-0 bg-gradient-to-t from-success/20 to-transparent rounded-full blur-3xl opacity-50"></div>
+<img class="relative z-10 w-full h-auto drop-shadow-2xl" data-alt="Pixel art crewmates celebrating a coding victory" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXf7Fkb734DGZyhIwVI0JvSCJs69Zkj8I5yl9wVcSSl3sbThFL_XwBL_IzjrYD3VIN8_UCV_kB8-xXPUxtLA0GjVnizKQYBYHNDb650oxzZ7d1oksiI0LGLSpSs6tuh1_oW1nInEm3iKtBC_1e1_BOWM5mK76-AjNR7R-iyVx61ljq1iGijOTHRVqKBHAdYQnSITmgkMtfBh4JA2Dt8KVseny_M4esHPc2Q7Ssnq_aFx7gf5ac6TGo7RnQgJiybQIo35Pn1tHUerH_"/>
+</div>
+<div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl border-2 border-primary/10 overflow-hidden mb-12 transform hover:scale-[1.02] transition-transform">
+<div class="bg-primary/5 border-b border-primary/10 p-4 flex items-center justify-between">
+<h3 class="text-primary font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">auto_awesome</span>
+                            XP BREAKDOWN
+                        </h3>
+<span class="text-xs font-mono text-slate-500">SESSION ID: #442-XP</span>
+</div>
+<div class="p-6 space-y-4">
+<div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-success/20 text-success rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">done_all</span>
+</div>
+<span class="font-medium">Missions Completed</span>
+</div>
+<div class="flex items-center gap-1 font-bold text-success">
+<span>+450</span>
+<span class="material-symbols-outlined text-sm">colors_spark</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-gold/20 text-gold rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">person_search</span>
+</div>
+<span class="font-medium">Found Impostor</span>
+</div>
+<div class="flex items-center gap-1 font-bold text-gold">
+<span>+200</span>
+<span class="material-symbols-outlined text-sm">colors_spark</span>
+</div>
+</div>
+<div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-8 bg-primary/20 text-primary rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">speed</span>
+</div>
+<span class="font-medium">Speed Bonus</span>
+</div>
+<div class="flex items-center gap-1 font-bold text-primary">
+<span>+125</span>
+<span class="material-symbols-outlined text-sm">colors_spark</span>
+</div>
+</div>
+<div class="pt-4 mt-2 border-t-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-between">
+<span class="text-xl font-bold uppercase">Total Earned</span>
+<div class="flex items-center gap-2">
+<span class="text-3xl font-pixel text-primary">775 XP</span>
+<span class="material-symbols-outlined text-primary text-2xl animate-pulse">auto_awesome</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-lg">
+<button class="flex items-center justify-center gap-3 bg-primary text-white px-8 py-5 rounded-xl font-bold text-lg hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/30 uppercase tracking-widest">
+<span class="material-symbols-outlined">replay</span>
+                        Play Again
+                    </button>
+<button class="flex items-center justify-center gap-3 bg-gold text-white px-8 py-5 rounded-xl font-bold text-lg hover:bg-gold/90 transition-all active:scale-95 shadow-lg shadow-gold/30 uppercase tracking-widest">
+<span class="material-symbols-outlined">leaderboard</span>
+                        Leaderboard
+                    </button>
+</div>
+<div class="mt-12 flex gap-8">
+<div class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined">share</span>
+<span class="text-sm font-semibold uppercase">Share Result</span>
+</div>
+<div class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-sm font-semibold uppercase">View Lobby</span>
+</div>
+</div>
+</main>
+<footer class="p-8 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+<div class="flex items-center gap-2 opacity-50 grayscale">
+<div class="size-4 bg-primary rounded-sm"></div>
+<span class="font-pixel text-lg">CODEDEX GAMES</span>
+</div>
+<p>© 2024 CODE AMONG US. ALL RECENT BUGS HAVE BEEN SQUASHED.</p>
+</footer>
+</div>
+</div>
+</body></html>

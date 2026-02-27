@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Emergency Meeting - Code Among Us</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#7f6bff",
+                        "background-light": "#f0efe8",
+                        "background-dark": "#120f23",
+                        "coral": "#ff6b6b",
+                        "golden": "#ffd166",
+                        "lavender": "#e8e6f4",
+                        "mint": "#00d28a",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "pixel": ["'Press Start 2P'", "cursive"]
+                    },
+                    borderRadius: { "DEFAULT": "0.4rem", "lg": "0.6rem", "xl": "1rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes pulse-border {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(127, 107, 255, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 6px rgba(127, 107, 255, 0);
+            }
+        }
+
+        @keyframes countdown-blink {
+
+            0%,
+            49% {
+                opacity: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .you-badge {
+            animation: pulse-border 2s infinite;
+        }
+
+        .timer-blink {
+            animation: countdown-blink 1s infinite;
+        }
+
+        .sync-icon {
+            animation: spin-slow 1.5s linear infinite;
+        }
+
+        .vote-btn {
+            transition: all 0.15s ease;
+        }
+
+        .vote-btn:hover {
+            background-color: rgba(127, 107, 255, 0.15);
+            color: #7f6bff;
+        }
+
+        .vote-btn:active {
+            transform: scale(0.95);
+        }
+
+        .player-card {
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .player-card:hover:not(.eliminated) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Custom scrollbar */
+        .chat-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Top Timer Bar -->
+    <div class="flex items-center justify-center py-5">
+        <div
+            class="flex items-center gap-6 bg-white dark:bg-slate-900 px-8 py-3 rounded-2xl shadow-md border border-lavender dark:border-slate-700">
+            <div class="flex flex-col items-center">
+                <span class="font-pixel text-2xl text-primary timer-blink tracking-widest">01:45</span>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Voting Ends</span>
+            </div>
+            <div class="w-px h-8 bg-lavender dark:bg-slate-700"></div>
+            <div class="flex items-center gap-2 text-coral">
+                <span class="material-symbols-outlined text-lg">warning</span>
+                <span class="font-pixel text-[10px] uppercase tracking-wider">Discussion in Progress</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex flex-1 px-6 pb-6 gap-5 max-w-[1100px] mx-auto w-full">
+
+        <!-- Voting Panel -->
+        <div
+            class="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border-2 border-lavender dark:border-slate-700 shadow-sm overflow-hidden">
+
+            <!-- Header -->
+            <div class="px-8 py-5 border-b border-lavender dark:border-slate-800 flex items-center gap-3">
+                <span class="text-2xl">⚠️</span>
+                <div>
+                    <h1 class="font-pixel text-coral text-sm md:text-base tracking-wider uppercase">Emergency Meeting
+                    </h1>
+                    <p class="text-slate-400 text-xs mt-1 font-medium uppercase tracking-widest">Who is the Impostor?
+                    </p>
+                </div>
+            </div>
+
+            <!-- Player Grid -->
+            <div class="flex-1 p-6 grid grid-cols-3 gap-4 auto-rows-min">
+
+                <!-- CaptainRed -->
+                <div
+                    class="player-card flex flex-col items-center gap-3 bg-lavender/30 dark:bg-slate-800 rounded-xl p-4 border border-lavender dark:border-slate-700 cursor-pointer">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-coral/30 bg-coral/10">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCon7KRO73nVeBQRb-uFuqDrbKmEbxLxDOVQZEOu1xValB8HBuQJ9E7YW5-v18N2DuQYWFMPgP4co21eo7-h4AwJP93Kda3QNv3WRmu3-9SsMhg-SyeuXgM8wtM1188LwW6t6fQ7Q0RpJKraim-TTVmLu2mAaIeqHS6B3fkLRy592NOO3Mo6ZW1QcUfttp5JA4OX796eOmy2zmSbvQ4EowSRGf1ZlIN3WIkN88i8Xq0i0GPwDdEDZXGmzw-kiGyGdF4lkEtymWCCK_D"
+                            alt="CaptainRed" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm">CaptainRed</p>
+                    <div class="bg-coral/10 border border-coral/20 px-3 py-0.5 rounded-full">
+                        <span class="text-coral text-xs font-bold">2 VOTES</span>
+                    </div>
+                    <button
+                        class="vote-btn w-full py-2 rounded-lg bg-lavender/50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest border border-lavender dark:border-slate-600">
+                        Vote
+                    </button>
+                </div>
+
+                <!-- Cyanide -->
+                <div
+                    class="player-card flex flex-col items-center gap-3 bg-lavender/30 dark:bg-slate-800 rounded-xl p-4 border border-lavender dark:border-slate-700 cursor-pointer">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/30 bg-primary/10">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBubH5PA3vVeQn0uc9ZxRqSryPBFIl1ZUfZrTdAYI1yAYKYZYmI6P7PaN7YPtAbDRJ1D_pjAjzMiUIGC2F2TxcK2HY9vf_OqmAkYn4ysFcuqjlqwXWSwGGwjq6ESlxd5c9Oj2LDinh1dyKHBNy3fhQ_8u3HEVjgoyllcUw98aKmYzA7XAGzfOcG8qYEXzns86CM1fogh0Nr8pjPxAm6JiLNKRj8LvXi-oBq4f4UblrxyVhjMJSgh8EfZRSv-tmo4LzNRFsbHkkCm6Dr"
+                            alt="Cyanide" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm">Cyanide</p>
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-0.5 rounded-full">
+                        <span class="text-slate-400 text-xs font-bold">0 VOTES</span>
+                    </div>
+                    <button
+                        class="vote-btn w-full py-2 rounded-lg bg-lavender/50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest border border-lavender dark:border-slate-600">
+                        Vote
+                    </button>
+                </div>
+
+                <!-- Limey -->
+                <div
+                    class="player-card flex flex-col items-center gap-3 bg-lavender/30 dark:bg-slate-800 rounded-xl p-4 border border-lavender dark:border-slate-700 cursor-pointer">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-mint/30 bg-mint/10">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDODmIYtJLQM-4giFwqXQBrQAIrisqwzOnZkul_10ra5DmZIlPx5f19BrfLmR7DgNgzwOrsTIEPvCuC-ORe9e5VX1_Pwv3UwDytQ6oaMP0nFXNZVPoRMI-DM-GphYRIJX1QcbAJTpFQS62stsEkELk8gOHCm2i-Lz1enhuGVUhr_gKC3EquBmKgmwaGee7uqeSIAd9CheXkT9I18cSAc8v_oGKNo2lYcFhXzHD1CRKSXzLipBpYbbtTxDAsf9twV-VbX5Do4dGcouqb"
+                            alt="Limey" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm">Limey</p>
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-0.5 rounded-full">
+                        <span class="text-slate-400 text-xs font-bold">1 VOTE</span>
+                    </div>
+                    <button
+                        class="vote-btn w-full py-2 rounded-lg bg-lavender/50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest border border-lavender dark:border-slate-600">
+                        Vote
+                    </button>
+                </div>
+
+                <!-- PurpX (RIP) - Eliminated -->
+                <div
+                    class="eliminated flex flex-col items-center gap-3 bg-slate-100/50 dark:bg-slate-800/40 rounded-xl p-4 border border-slate-200/50 dark:border-slate-700/50 opacity-50">
+                    <div
+                        class="w-20 h-20 rounded-xl overflow-hidden border-2 border-slate-300/50 bg-slate-200/50 grayscale">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAz1uBMVChdfgmBhX9NoJFp17ea_Dwo9Qyxq1154EQotjCtbgzB6q6O0OEp-n5VVveLVrAeK4l-IqKj9diCnhlEQ6NUFjlQp5-C1SFCMr2-NvDAs9Zj-2_7Q_lkcMAoLVdX_3VeAYWVdTocLsstWuI7umiFjsFge8ckJGwSS1Q1s-uC-vcm2je5ZVhpLfY5aVtBptStXzqt1GXSv83jLoCEjxAFyDaw4CAmIhLshRYtaeu9g8A_B-5bD1pq38QUN463-FONHDgXSeHg"
+                            alt="PurpX" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm text-slate-400">PurpX (RIP)</p>
+                    <div class="bg-slate-100 dark:bg-slate-700 px-3 py-0.5 rounded-full">
+                        <span class="text-slate-400 text-[10px] font-bold uppercase tracking-wide">💀 Inactive</span>
+                    </div>
+                    <div class="w-full py-2 rounded-lg bg-slate-200/50 dark:bg-slate-700/50 text-center">
+                        <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Inactive</span>
+                    </div>
+                </div>
+
+                <!-- MellowYell -->
+                <div
+                    class="player-card flex flex-col items-center gap-3 bg-lavender/30 dark:bg-slate-800 rounded-xl p-4 border border-lavender dark:border-slate-700 cursor-pointer">
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-golden/30 bg-golden/10">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKlh1RNBdqvbk_T0fE5XFu6WomJ4Ci_XWDc35GL_znpY7tjSatIxGj_IfSZS1-S6px3vIsnPjtbIosz0P_BwHQ73i9AMe1QTWvMAUSlTM-P0GllESjZ925VyY2LvGxpQ47aqtvJWBil8AtFt3vyAXpVPyWOcKufj24dpUoUGMF-VGDVLEM-Lm1rnETJl4TBcY-Fv4FaqzHobYeU_Sl4RpLcq0OAnCf9cJj7mZQEo4C70WhKHfJ4pqxrU7XXw9uWzYIB4NDD4bAKBYv"
+                            alt="MellowYell" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm">MellowYell</p>
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-3 py-0.5 rounded-full">
+                        <span class="text-slate-400 text-xs font-bold">0 VOTES</span>
+                    </div>
+                    <button
+                        class="vote-btn w-full py-2 rounded-lg bg-lavender/50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest border border-lavender dark:border-slate-600">
+                        Vote
+                    </button>
+                </div>
+
+                <!-- BlueBerry (YOU) -->
+                <div
+                    class="you-badge player-card flex flex-col items-center gap-3 bg-primary/5 dark:bg-primary/10 rounded-xl p-4 border-2 border-primary/40 cursor-pointer relative">
+                    <div
+                        class="absolute -top-2 -right-2 bg-primary text-white text-[9px] font-pixel px-2 py-1 rounded-full uppercase">
+                        YOU</div>
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border-2 border-primary/50 bg-primary/10">
+                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6aRFJy6INXd40h4vk8Z-p164-0YR26UNuhltESmug_vJrb8IUe34O4xu-7ITH07ZqNwI7Tx3JHPAzHR0ZYcZX5K32e4WXkLBIkm0pT7KNpDJqrYUoAvNshn_uPrVxfIh4_tG4Mi8LUINA_MfYCsTGO15qoZbWk8cwvN5z5cfYE-Y6mFbM9Z2Agon7mOo7vsSYsDvbCqbrRif5x7bqKE1SHKACAc4bCWn16t27VpULu4d_D30CJ5Xl7lbxsdtkK1JJP9hscdFL5vtx"
+                            alt="BlueBerry" class="w-full h-full object-cover" />
+                    </div>
+                    <p class="font-bold text-sm text-primary">BlueBerry</p>
+                    <div class="bg-primary/10 border border-primary/20 px-3 py-0.5 rounded-full">
+                        <span class="text-primary text-xs font-bold">0 VOTES</span>
+                    </div>
+                    <button
+                        class="vote-btn w-full py-2 rounded-lg bg-lavender/50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest border border-lavender dark:border-slate-600">
+                        Vote
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Skip Vote -->
+            <div class="px-6 pb-6 flex justify-center">
+                <button
+                    class="flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-slate-300 dark:border-slate-600 text-slate-500 hover:border-primary hover:text-primary transition-all font-bold text-sm uppercase tracking-widest">
+                    <span class="material-symbols-outlined text-lg">block</span>
+                    Skip Vote
+                </button>
+            </div>
+        </div>
+
+        <!-- Live Crew Chat -->
+        <aside
+            class="w-72 flex flex-col bg-white dark:bg-slate-900 rounded-2xl border-2 border-lavender dark:border-slate-700 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-lavender dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">chat_bubble</span>
+                    <h3 class="font-bold text-sm">Live Crew Chat</h3>
+                </div>
+                <span class="size-2 bg-mint rounded-full animate-pulse"></span>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 chat-scroll">
+
+                <!-- CaptainRed msg -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-coral uppercase tracking-wider ml-1">CaptainRed</span>
+                    <div
+                        class="bg-lavender/40 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 max-w-[90%]">
+                        I was in Electrical, I saw Cyan venting! 😱
+                    </div>
+                </div>
+
+                <!-- Cyanide msg -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-primary uppercase tracking-wider ml-1">Cyanide</span>
+                    <div
+                        class="bg-lavender/40 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 max-w-[90%]">
+                        That's a lie, I was with Lime in Medbay doing scan.
+                    </div>
+                </div>
+
+                <!-- Limey msg -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-mint uppercase tracking-wider ml-1">Limey</span>
+                    <div
+                        class="bg-lavender/40 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 max-w-[90%]">
+                        Confirming Cyan is safe. Red is acting sus.
+                    </div>
+                </div>
+
+                <!-- MellowYell msg -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold text-golden uppercase tracking-wider ml-1">MellowYell</span>
+                    <div
+                        class="bg-lavender/40 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 max-w-[90%]">
+                        Where was the body found?
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Chat Input -->
+            <div class="p-3 border-t border-lavender dark:border-slate-800 bg-background-light dark:bg-slate-950">
+                <div class="relative">
+                    <input type="text" placeholder="Type your defense..."
+                        class="w-full pl-4 pr-10 py-2.5 bg-white dark:bg-slate-900 border border-lavender dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all" />
+                    <button
+                        class="absolute right-2 top-1.5 p-1 text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                        <span class="material-symbols-outlined text-lg">send</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Bottom Status Bar -->
+    <div
+        class="sticky bottom-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-t border-lavender dark:border-slate-700 px-8 py-3 flex items-center justify-between text-xs font-bold">
+        <div class="flex items-center gap-6">
+            <div class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                <span class="material-symbols-outlined text-sm">group</span>
+                <span>5 Crew Alive</span>
+            </div>
+            <div class="flex items-center gap-2 text-coral">
+                <span class="material-symbols-outlined text-sm">bug_report</span>
+                <span>1 Impostor Remaining</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 text-primary">
+            <span class="material-symbols-outlined text-sm sync-icon">sync</span>
+            <span class="uppercase tracking-wider font-pixel text-[9px]">Syncing Votes...</span>
+        </div>
+    </div>
+
+</body>
+
+</html>

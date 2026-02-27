@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Among Us</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Press+Start+2P&family=VT323&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = { darkMode: "class", theme: { extend: { colors: { primary: "#7f6bff", "background-light": "#f6f5f8", "background-dark": "#120f23", mint: "#00d28a", golden: "#ffb800", coral: "#ff6b6b", lavender: "#e8e6f4", gold: "#FFD700", silver: "#C0C0C0", bronze: "#CD7F32" }, fontFamily: { display: ["Inter", "sans-serif"], pixel: ["'Press Start 2P'", "cursive"], vt: ["VT323", "monospace"] }, borderRadius: { DEFAULT: "0.4rem", lg: "0.6rem", xl: "1rem", full: "9999px" } } } }
+    </script>
+    <style id="game-styles">
+        * {
+            box-sizing: border-box
+        }
+
+        .screen {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column
+        }
+
+        .screen.active {
+            display: flex
+        }
+
+        #screen-game.active {
+            display: flex;
+            flex-direction: column
+        }
+
+        #screen-voting.active {
+            display: flex;
+            flex-direction: column
+        }
+
+        #code-input {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5rem;
+            color: #1e293b;
+            background: #fff;
+            border: none;
+            tab-size: 2;
+            white-space: pre;
+            resize: none
+        }
+
+        #line-numbers {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.5rem;
+            min-width: 48px;
+            user-select: none;
+            padding: 1rem .75rem 1rem 0;
+            background: #f8fafc;
+            border-right: 1px solid #e8e6f4;
+            text-align: right;
+            color: #a78bfa
+        }
+
+        .chat-bubble-other {
+            background: #e8e6f4;
+            border-radius: 1rem 1rem 1rem 0;
+            padding: .6rem .9rem;
+            font-size: .8rem;
+            max-width: 90%
+        }
+
+        .chat-bubble-self {
+            background: #7f6bff;
+            color: #fff;
+            border-radius: 1rem 1rem 0 1rem;
+            padding: .6rem .9rem;
+            font-size: .8rem;
+            max-width: 90%
+        }
+
+        .chat-bubble-system {
+            background: #e8e6f4;
+            border-radius: 9999px;
+            padding: .25rem .8rem;
+            font-size: .65rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .08em
+        }
+
+        .vote-card {
+            background: #fff;
+            border: 2px solid #e8e6f4;
+            border-radius: .75rem;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            user-select: none
+        }
+
+        .vote-card:hover {
+            border-color: #7f6bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(127, 107, 255, .15)
+        }
+
+        .vote-card.selected {
+            border-color: #7f6bff;
+            background: #f0effc;
+            box-shadow: 0 0 0 3px rgba(127, 107, 255, .2)
+        }
+
+        .vote-card.eliminated-card {
+            opacity: .4;
+            cursor: default;
+            pointer-events: none;
+            filter: grayscale(1)
+        }
+
+        .vote-card.ejecting {
+            animation: pixelShatter .6s ease forwards
+        }
+
+        #chat-panel.emergency-active {
+            border-color: #ff6b6b !important;
+            box-shadow: 0 0 0 2px #ff6b6b
+        }
+
+        .toast {
+            padding: .75rem 1.25rem;
+            border-radius: .75rem;
+            font-weight: 700;
+            font-size: .85rem;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, .12);
+            pointer-events: auto;
+            animation: slideInRight .3s ease
+        }
+
+        .toast-success {
+            background: #ecfdf5;
+            color: #16a34a;
+            border: 1.5px solid #bbf7d0
+        }
+
+        .toast-error {
+            background: #fff5f5;
+            color: #dc2626;
+            border: 1.5px solid #fecaca
+        }
+
+        .toast-info {
+            background: #f0f9ff;
+            color: #0369a1;
+            border: 1.5px solid #bae6fd
+        }
+
+        .toast-xp {
+            background: #faf5ff;
+            color: #7f6bff;
+            border: 1.5px solid #ddd6fe
+        }
+
+        .player-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .5rem;
+            border-radius: .5rem;
+            transition: background .15s
+        }
+
+        .player-row:hover {
+            background: #f6f5f8
+        }
+
+        .player-row.eliminated-row {
+            opacity: .45
+        }
+
+        .player-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: .5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0
+        }
+
+        .podium-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .75rem;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: .75rem;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, .08)
+        }
+
+        .podium-card.gold-card {
+            border-bottom: 8px solid #FFD700;
+            transform: scale(1.06);
+            z-index: 10;
+            position: relative
+        }
+
+        .podium-card.silver-card {
+            border-bottom: 4px solid #C0C0C0
+        }
+
+        .podium-card.bronze-card {
+            border-bottom: 4px solid #CD7F32
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c4b5fd;
+            border-radius: 9999px
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(.5)
+            }
+
+            60% {
+                transform: scale(1.1)
+            }
+
+            80% {
+                transform: scale(.95)
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        @keyframes pixelShatter {
+            0% {
+                transform: scale(1);
+                opacity: 1
+            }
+
+            30% {
+                transform: scale(1.05) rotate(-3deg)
+            }
+
+            60% {
+                transform: scale(.9) rotate(3deg);
+                opacity: .6
+            }
+
+            100% {
+                transform: scale(0);
+                opacity: 0
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .animate-bounce-in {
+            animation: bounceIn .5s ease
+        }
+
+        .spin-anim {
+            animation: spin 1s linear infinite
+        }
+    </style>
+</head>
+
+<body class="bg-background-light font-display text-slate-900 min-h-screen overflow-x-hidden">
+
+    <!-- SCREEN: LOBBY -->
+    <div id="screen-lobby" class="screen active">
+        <header class="flex items-center justify-between px-6 py-3 border-b border-lavender bg-white sticky top-0 z-50">
+            <div class="flex items-center gap-3">
+                <div class="size-8 bg-primary rounded-lg flex items-center justify-center text-white"><span
+                        class="material-symbols-outlined text-sm">terminal</span></div>
+                <h1 class="font-pixel text-sm text-primary">CODE AMONG US</h1>
+            </div>
+            <div class="flex gap-3">
+                <button id="lobby-leaderboard-btn"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-golden/10 text-golden border border-golden/30 text-sm font-bold hover:bg-golden/20 transition-all"><span
+                        class="material-symbols-outlined text-sm">leaderboard</span> Leaderboard 🏆</button>
+                <button id="how-to-play-btn"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-lavender text-slate-600 text-sm font-bold hover:bg-lavender/80 transition-all cursor-pointer">How
+                    to Play ?</button>
+            </div>
+        </header>
+        <div class="flex flex-col items-center py-10 px-4">
+            <div class="text-center mb-8">
+                <h2 class="font-pixel text-2xl md:text-4xl text-primary mb-3 leading-relaxed">Code Among Us <span
+                        class="text-golden">★</span><span class="text-coral"> ⚙</span></h2>
+                <p class="text-slate-500 font-mono text-sm">Debug together. Deceive boldly.</p>
+            </div>
+            <div class="lobby-avatars flex gap-4 mb-10 p-6 bg-white rounded-2xl border border-lavender shadow-sm">
+                <div
+                    class="lobby-avatar-slot w-20 h-24 rounded-xl border-2 border-lavender bg-lavender/30 flex items-center justify-center text-3xl">
+                    🧑‍💻</div>
+                <div
+                    class="lobby-avatar-slot w-20 h-24 rounded-xl border-2 border-lavender bg-lavender/30 flex items-center justify-center text-3xl">
+                    👩‍💻</div>
+                <div
+                    class="lobby-avatar-slot w-20 h-24 rounded-xl border-2 border-lavender bg-lavender/30 flex items-center justify-center text-3xl">
+                    🧑‍🚀</div>
+                <div
+                    class="lobby-avatar-slot w-20 h-24 rounded-xl border-2 border-coral/30 bg-coral/10 flex items-center justify-center text-3xl">
+                    🤖</div>
+                <div
+                    class="lobby-avatar-slot w-20 h-24 rounded-xl border-2 border-lavender bg-lavender/30 flex items-center justify-center text-3xl">
+                    👾</div>
+            </div>
+            <div class="w-full max-w-2xl bg-white rounded-2xl border border-lavender shadow-sm p-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label
+                            class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3">Username</label>
+                        <input id="player-name-input" type="text" placeholder="Enter your alias..."
+                            class="w-full px-4 py-3 rounded-xl border-2 border-lavender focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm font-medium" />
+                        <label
+                            class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3 mt-6">Coding
+                            Language</label>
+                        <div id="lang-select" class="grid grid-cols-2 gap-2">
+                            <button
+                                class="lang-btn active-lang px-4 py-2.5 rounded-xl border-2 border-primary bg-primary/10 text-primary font-bold text-sm"
+                                data-lang="JavaScript">JavaScript</button>
+                            <button
+                                class="lang-btn px-4 py-2.5 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-lang="Python">Python</button>
+                            <button
+                                class="lang-btn px-4 py-2.5 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-lang="Java">Java</button>
+                            <button
+                                class="lang-btn px-4 py-2.5 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-lang="C++">C++</button>
+                        </div>
+
+                    </div>
+                    <div>
+                        <label
+                            class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3">Challenge
+                            Topic</label>
+                        <div id="topic-select" class="flex flex-wrap gap-2 mb-6">
+                            <button
+                                class="topic-btn px-3 py-1.5 rounded-full border border-lavender text-sm font-medium hover:border-primary text-slate-600 transition-all"
+                                data-topic="Arrays">Arrays</button>
+                            <button
+                                class="topic-btn active-topic px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 text-primary text-sm font-medium"
+                                data-topic="Sorting">Sorting</button>
+                            <button
+                                class="topic-btn px-3 py-1.5 rounded-full border border-lavender text-sm font-medium hover:border-primary text-slate-600 transition-all"
+                                data-topic="OOP">OOP</button>
+                            <button
+                                class="topic-btn px-3 py-1.5 rounded-full border border-lavender text-sm font-medium hover:border-primary text-slate-600 transition-all"
+                                data-topic="APIs">APIs</button>
+                            <button
+                                class="topic-btn px-3 py-1.5 rounded-full border border-lavender text-sm font-medium hover:border-primary text-slate-600 transition-all"
+                                data-topic="Data Structures">Data Structures</button>
+                            <button
+                                class="topic-btn px-3 py-1.5 rounded-full border border-lavender text-sm font-medium hover:border-primary text-slate-600 transition-all"
+                                data-topic="Recursion">Recursion</button>
+                        </div>
+                        <label
+                            class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3">Difficulty</label>
+                        <div id="difficulty-select" class="flex gap-2 mb-6">
+                            <button
+                                class="diff-btn active-diff px-4 py-2 rounded-xl border-2 border-mint/50 bg-mint/10 text-mint font-bold text-sm"
+                                data-diff="Easy">Easy 🟢</button>
+                            <button
+                                class="diff-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-golden/50 transition-all"
+                                data-diff="Medium">Medium 🟡</button>
+                            <button
+                                class="diff-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-coral/50 transition-all"
+                                data-diff="Hard">Hard 🔴</button>
+                        </div>
+                        <label class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3">Your
+                            Role</label>
+                        <div id="role-select" class="flex gap-2 mb-6">
+                            <button
+                                class="role-btn active-role px-4 py-2 rounded-xl border-2 border-primary bg-primary/10 text-primary font-bold text-sm"
+                                data-role="random">🎲 Random</button>
+                            <button
+                                class="role-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-coral/50 transition-all"
+                                data-role="impostor">🔴 Impostor</button>
+                            <button
+                                class="role-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-mint/50 transition-all"
+                                data-role="crewmate">🟢 Crewmate</button>
+                        </div>
+                        <label class="block font-pixel text-[10px] text-slate-500 uppercase tracking-widest mb-3">Number
+                            of Bots</label>
+                        <div id="botcount-select" class="flex gap-2 mb-6">
+                            <button
+                                class="botcount-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-count="3">3 Bots</button>
+                            <button
+                                class="botcount-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-count="4">4 Bots</button>
+                            <button
+                                class="botcount-btn active-botcount px-4 py-2 rounded-xl border-2 border-primary bg-primary/10 text-primary font-bold text-sm"
+                                data-count="5">5 Bots</button>
+                            <button
+                                class="botcount-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-count="6">6 Bots</button>
+                            <button
+                                class="botcount-btn px-4 py-2 rounded-xl border-2 border-lavender text-slate-600 font-bold text-sm hover:border-primary/50 transition-all"
+                                data-count="7">7 Bots</button>
+                        </div>
+                        <div class="bg-golden/5 border border-golden/20 rounded-xl p-4">
+                            <p class="text-xs text-golden font-medium"><span class="font-bold">ℹ Pro Tip:</span> The
+                                Impostor's code will contain subtle logical errors instead of syntax bugs.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="player-list" class="flex flex-wrap gap-3 justify-center mb-8">
+                <div class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border-2 border-primary shadow-sm">
+                    <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs">🧑</div>
+                    <span class="text-sm font-bold text-primary">You (Host)</span>
+                </div>
+                <!-- bot slots will be dynamically filled -->
+            </div>
+            <button id="start-game-btn"
+                class="flex items-center gap-3 bg-primary text-white px-10 py-4 rounded-xl font-pixel text-xs shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-95 transition-all uppercase tracking-widest mb-2">START
+                ADVENTURE →</button>
+            <p id="lobby-status" class="font-pixel text-[9px] text-slate-400 uppercase tracking-widest">
+            </p>
+            <footer class="mt-16 text-center text-slate-400 text-xs flex flex-col items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <div class="size-4 bg-primary rounded-sm"></div><span class="font-pixel text-xs">CODEDEX
+                        GAMES</span>
+                </div>
+                <p>© 2024 CODE AMONG US • CODEDEX STYLE <span class="text-green-500 font-bold">● 1,204 PLAYERS
+                        ONLINE</span></p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- SCREEN: GAME -->
+    <div id="screen-game" class="screen">
+        <header class="flex items-center justify-between px-6 py-3 border-b border-lavender bg-white sticky top-0 z-50">
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-2"><span
+                        class="material-symbols-outlined text-primary text-2xl">rocket_launch</span>
+                    <h2 class="text-base font-bold tracking-tight">Code Among Us</h2>
+                </div>
+                <div class="flex gap-2 items-center">
+                    <div id="round-number"
+                        class="flex h-8 items-center px-4 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-bold uppercase tracking-wider">
+                        Round 1 of 3</div>
+                    <div id="topic-chip"
+                        class="flex h-8 items-center px-3 rounded-lg bg-lavender text-slate-600 text-xs font-semibold">
+                        Topic: Sorting</div>
+                    <div id="lang-chip"
+                        class="flex h-8 items-center px-3 rounded-lg bg-lavender text-slate-600 text-xs font-semibold">
+                        JavaScript</div>
+                    <div id="difficulty-badge"
+                        class="flex h-8 items-center px-3 rounded-lg bg-mint/10 text-mint border border-mint/20 text-xs font-bold">
+                        Easy 🟢</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="round-timer"
+                    class="flex items-center gap-2 bg-coral/10 text-coral px-4 py-1.5 rounded-lg border border-coral/30">
+                    <span class="material-symbols-outlined text-sm">schedule</span>
+                    <span class="font-mono text-xl font-bold tracking-widest">01:30</span>
+                </div>
+                <div id="xp-display"
+                    class="flex items-center gap-2 bg-primary/10 text-primary px-3 py-1.5 rounded-lg border border-primary/20 text-xs font-bold">
+                    <span class="material-symbols-outlined text-sm">stars</span>
+                    <span id="xp-label">0 XP</span> · Lv<span id="level-badge">0</span>
+                </div>
+            </div>
+        </header>
+        <main class="flex flex-1 overflow-hidden p-4 gap-4" style="height:calc(100vh - 64px)">
+            <!-- Left: Player List -->
+            <aside class="w-1/5 flex flex-col gap-4">
+                <div class="bg-white rounded-xl border border-lavender flex flex-col h-full overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-lavender flex items-center justify-between">
+                        <h3 class="font-bold text-sm uppercase tracking-widest text-slate-500">Crewmates</h3>
+                        <span id="alive-count" class="text-xs font-medium text-primary">6/6 Alive</span>
+                    </div>
+                    <div id="player-list-game" class="flex-1 overflow-y-auto p-2 space-y-1"></div>
+                    <div class="p-4 bg-primary/5 border-t border-lavender">
+                        <div class="flex items-center gap-2 text-primary font-bold text-xs">
+                            <span class="material-symbols-outlined text-sm">stars</span>
+                            <span id="title-label">Junior Dev</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            <!-- Center: Code Editor -->
+            <section class="flex-1 flex flex-col bg-white rounded-xl border border-lavender shadow-sm overflow-hidden">
+                <div class="flex items-center bg-background-light px-2 h-10 border-b border-lavender">
+                    <div
+                        class="flex items-center gap-2 bg-white h-10 px-4 border-x border-t border-lavender rounded-t-lg text-xs font-semibold text-primary translate-y-[1px]">
+                        <span class="material-symbols-outlined text-sm">description</span>
+                        fix_the_bug.py
+                    </div>
+                    <div id="api-loader" class="ml-4 hidden flex items-center gap-2 text-xs text-slate-400">
+                        <div class="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin">
+                        </div>
+                        Generating challenge...
+                    </div>
+                </div>
+                <div class="flex-1 font-mono text-sm overflow-auto flex relative" style="background:#ffffff">
+                    <div id="line-numbers"
+                        class="w-12 text-right pr-3 pt-4 pb-4 text-primary/40 select-none border-r border-lavender text-xs leading-6 bg-slate-50">
+                        1</div>
+                    <textarea id="code-input" spellcheck="false"
+                        class="flex-1 p-4 outline-none resize-none font-mono text-sm text-slate-800 bg-white leading-6 tab-size-2"
+                        style="tab-size:2;-moz-tab-size:2;line-height:1.5rem;min-height:300px"></textarea>
+                </div>
+                <div id="hint-chip"
+                    class="hidden mx-4 mb-2 px-4 py-2 bg-golden/10 border border-golden/30 rounded-lg text-xs text-golden font-medium">
+                </div>
+                <div class="p-4 border-t border-lavender flex items-center justify-between bg-white">
+                    <div class="flex gap-3">
+                        <button id="submit-fix-btn"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-mint hover:bg-mint/90 text-white rounded-lg font-bold text-sm shadow-sm transition-all active:scale-95">
+                            <span class="material-symbols-outlined">check_circle</span> Submit Fix
+                        </button>
+                        <button id="flag-btn"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-golden/10 hover:bg-golden/20 text-golden rounded-lg font-bold text-sm border border-golden/30 transition-all">
+                            <span class="material-symbols-outlined">flag</span> Flag Edit
+                        </button>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="emergency-btn"
+                            class="flex items-center gap-2 px-5 py-2.5 bg-coral/10 hover:bg-coral/20 text-coral rounded-lg font-bold text-sm border border-coral/30 transition-all">
+                            <span class="material-symbols-outlined">notifications_active</span> Emergency
+                        </button>
+                        <button id="sabotage-btn"
+                            class="relative flex items-center gap-2 px-5 py-2.5 bg-coral text-white rounded-lg font-bold text-sm shadow-[0_0_15px_rgba(255,107,107,0.5)] transition-all animate-pulse">
+                            <span class="material-symbols-outlined">bomb</span> Sabotage
+                            <div class="absolute -top-1 -right-1 flex h-3 w-3"><span
+                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span><span
+                                    class="relative inline-flex rounded-full h-3 w-3 bg-white"></span></div>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            <!-- Right: Chat -->
+            <aside id="chat-panel"
+                class="w-1/4 flex flex-col bg-white rounded-xl border border-lavender shadow-sm overflow-hidden transition-all">
+                <div class="p-4 border-b border-lavender flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary">chat_bubble</span>
+                    <h3 class="font-bold text-sm uppercase tracking-widest text-slate-500">Crew Chat</h3>
+                    <div class="ml-auto w-2 h-2 bg-mint rounded-full animate-pulse"></div>
+                </div>
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+                <div class="p-4 border-t border-lavender bg-background-light">
+                    <div class="relative">
+                        <input id="chat-input-field" type="text" placeholder="Type a message..."
+                            class="w-full pl-4 pr-12 py-3 bg-white border border-lavender rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all outline-none text-sm" />
+                        <button id="chat-send-btn"
+                            class="absolute right-2 top-1.5 p-1.5 text-primary hover:bg-primary/10 rounded-lg transition-colors">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </div>
+                    <p class="text-[10px] mt-2 text-center text-slate-400">⋆˙⟡ Keep it focused on the code ⋆˙⟡</p>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- SCREEN: VOTING -->
+    <div id="screen-voting" class="screen">
+        <div class="min-h-screen bg-[#f0effc] flex flex-col">
+            <div class="flex items-center justify-center py-4 border-b border-primary/10 bg-white/80">
+                <div class="flex items-center gap-6 bg-white rounded-xl border border-primary/20 px-8 py-3 shadow-sm">
+                    <div class="flex flex-col items-center">
+                        <span id="vote-timer" class="font-pixel text-2xl text-primary">01:45</span>
+                        <span class="text-[9px] font-pixel text-slate-400 uppercase">VOTING ENDS</span>
+                    </div>
+                    <div class="w-px h-10 bg-primary/20"></div>
+                    <div class="flex items-center gap-2 text-coral">
+                        <span class="material-symbols-outlined text-sm">warning</span>
+                        <span class="font-pixel text-xs uppercase tracking-widest">DISCUSSION IN PROGRESS</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1 gap-0">
+                <div class="flex-1 p-6">
+                    <div class="bg-white rounded-2xl border-2 border-primary/20 shadow-xl p-6">
+                        <div class="text-center mb-8">
+                            <div class="inline-flex items-center gap-3 mb-2">
+                                <span class="text-3xl">⚠️</span>
+                                <h2 class="font-pixel text-xl text-coral uppercase tracking-widest">Emergency Meeting
+                                </h2>
+                            </div>
+                            <p class="text-slate-500 font-mono text-sm">WHO IS THE IMPOSTOR?</p>
+                        </div>
+                        <div id="vote-grid" class="grid grid-cols-3 gap-4 mb-6"></div>
+                        <div class="flex justify-center gap-4">
+                            <button id="skip-vote-btn"
+                                class="flex items-center gap-2 px-8 py-3 rounded-xl border-2 border-lavender text-slate-500 font-pixel text-[10px] hover:bg-lavender/50 transition-all">
+                                <span class="material-symbols-outlined text-sm">block</span> SKIP VOTE
+                            </button>
+                            <button id="confirm-vote-btn"
+                                class="flex items-center gap-2 px-8 py-3 rounded-xl bg-primary text-white font-pixel text-[10px] shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-95 transition-all hidden">
+                                <span class="material-symbols-outlined text-sm">how_to_vote</span> CONFIRM VOTE
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-4 px-2 text-xs text-slate-500">
+                        <div class="flex items-center gap-2"><span
+                                class="material-symbols-outlined text-sm">group</span><span id="alive-count-vote">5 Crew
+                                Alive</span></div>
+                        <div class="flex items-center gap-2 text-coral font-bold"><span
+                                class="material-symbols-outlined text-sm">bug_report</span><span>1 Impostor
+                                Remaining</span></div>
+                        <div id="syncing-indicator" class="flex items-center gap-2 text-primary"><span
+                                class="material-symbols-outlined text-sm animate-spin"
+                                style="animation:spin 1s linear infinite">sync</span><span>SYNCING VOTES...</span></div>
+                    </div>
+                </div>
+                <!-- Voting Chat -->
+                <div class="w-72 bg-white border-l border-primary/10 flex flex-col">
+                    <div class="p-4 border-b border-primary/10 flex items-center gap-2 bg-primary/5">
+                        <div class="w-3 h-3 bg-primary rounded-sm"></div>
+                        <span class="font-bold text-sm text-primary">Live Crew Chat</span>
+                        <div class="ml-auto w-2 h-2 bg-mint rounded-full animate-pulse"></div>
+                    </div>
+                    <div id="voting-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                    <div class="p-4 border-t border-primary/10">
+                        <div class="relative">
+                            <input id="voting-chat-input" type="text" placeholder="Type your defense..."
+                                class="w-full pl-4 pr-10 py-2.5 bg-slate-50 border border-lavender rounded-xl text-sm outline-none focus:ring-2 focus:ring-primary" />
+                            <button id="voting-chat-send" class="absolute right-2 top-1.5 p-1 text-primary"><span
+                                    class="material-symbols-outlined text-sm">send</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN: RESULTS -->
+    <div id="screen-results" class="screen">
+        <header
+            class="flex items-center justify-between border-b border-primary/10 px-6 py-4 bg-white/80 backdrop-blur-md sticky top-0 z-50">
+            <div class="flex items-center gap-3 text-primary">
+                <div class="size-8 flex items-center justify-center bg-primary rounded-lg text-white"><span
+                        class="material-symbols-outlined">terminal</span></div>
+                <h2 class="font-pixel text-sm text-slate-900">Code Among Us</h2>
+            </div>
+            <div class="flex items-center gap-3">
+                <div id="results-level-display"
+                    class="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                    <span class="material-symbols-outlined text-primary text-sm">stars</span>
+                    <span class="text-primary font-bold text-sm">Level <span id="results-level">0</span></span>
+                </div>
+            </div>
+        </header>
+        <main class="flex-1 flex flex-col items-center justify-center p-6 max-w-4xl mx-auto w-full">
+            <div id="outcome-banner" class="text-center mb-10 space-y-4">
+                <div id="victory-badge"
+                    class="inline-flex items-center justify-center px-4 py-1 rounded-full font-bold text-sm mb-2 uppercase tracking-widest">
+                </div>
+                <h1 id="outcome-title" class="font-pixel text-5xl leading-relaxed uppercase drop-shadow-sm"></h1>
+                <p id="outcome-subtitle" class="text-slate-600 text-lg font-medium"></p>
+            </div>
+            <div id="ejected-player-card"
+                class="relative w-full max-w-md aspect-video mb-8 flex items-center justify-center">
+                <div class="absolute inset-0 rounded-2xl blur-3xl opacity-30"></div>
+                <div class="relative z-10 text-center">
+                    <div id="ejected-avatar"
+                        class="w-24 h-24 rounded-2xl mx-auto mb-3 flex items-center justify-center text-5xl shadow-lg">
+                    </div>
+                    <p class="font-pixel text-sm text-slate-700" id="ejected-player-name">???</p>
+                    <p class="text-xs text-slate-500 mt-1" id="ejected-role-text"></p>
+                </div>
+            </div>
+            <div class="w-full max-w-lg bg-white rounded-2xl shadow-xl border-2 border-primary/10 overflow-hidden mb-8">
+                <div class="bg-primary/5 border-b border-primary/10 p-4 flex items-center justify-between">
+                    <h3 class="text-primary font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">auto_awesome</span> XP BREAKDOWN
+                    </h3>
+                    <span class="text-xs font-mono text-slate-500">SESSION RESULTS</span>
+                </div>
+                <div class="p-6 space-y-3">
+                    <div id="xp-breakdown-list" class="space-y-3"></div>
+                    <div class="pt-4 mt-2 border-t-2 border-dashed border-slate-200 flex items-center justify-between">
+                        <span class="text-xl font-bold uppercase">Total Earned</span>
+                        <div class="flex items-center gap-2">
+                            <span id="total-xp-earned" class="text-3xl font-pixel text-primary">0 XP</span>
+                            <span
+                                class="material-symbols-outlined text-primary text-2xl animate-pulse">auto_awesome</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-4 w-full max-w-lg">
+                <button id="play-again-btn"
+                    class="flex items-center justify-center gap-3 bg-primary text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-primary/90 active:scale-95 shadow-lg shadow-primary/30 uppercase tracking-widest transition-all">
+                    <span class="material-symbols-outlined">replay</span> Play Again
+                </button>
+                <button id="view-leaderboard-btn"
+                    class="flex items-center justify-center gap-3 bg-golden text-white px-8 py-4 rounded-xl font-bold text-base hover:bg-golden/90 active:scale-95 shadow-lg shadow-golden/30 uppercase tracking-widest transition-all">
+                    <span class="material-symbols-outlined">leaderboard</span> Leaderboard
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- SCREEN: LEADERBOARD -->
+    <div id="screen-leaderboard" class="screen">
+        <div class="relative flex min-h-screen flex-col bg-background-light">
+            <div class="px-4 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+                <div class="flex flex-col max-w-[960px] flex-1">
+                    <header
+                        class="flex items-center justify-between border-b border-primary/10 px-4 md:px-10 py-6 mb-8">
+                        <div class="flex flex-col">
+                            <h1 class="font-pixel text-lg md:text-2xl text-primary uppercase tracking-tighter">Hall of
+                                Fame <span class="text-golden">✦</span></h1>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="back-to-lobby-btn"
+                                class="flex items-center justify-center gap-2 rounded-lg h-10 bg-primary text-white hover:bg-primary/90 px-4 text-sm font-bold transition-colors">
+                                <span class="material-symbols-outlined text-sm">arrow_back</span> Back to Lobby
+                            </button>
+                        </div>
+                    </header>
+                    <!-- Podium: top 3 -->
+                    <div id="podium-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-12 items-end"></div>
+                    <!-- Table: ranks 4-10 -->
+                    <div class="px-4 overflow-hidden mb-12">
+                        <div class="flex flex-col gap-2">
+                            <div
+                                class="grid grid-cols-12 gap-4 px-6 py-3 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                                <div class="col-span-1">Rank</div>
+                                <div class="col-span-4">Player</div>
+                                <div class="col-span-3">Title</div>
+                                <div class="col-span-2">XP</div>
+                                <div class="col-span-2 text-right">Level</div>
+                            </div>
+                            <div id="leaderboard-table" class="flex flex-col gap-2"></div>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4 px-4 pb-12">
+                        <div
+                            class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Your Percentile</p>
+                            <div class="flex items-baseline gap-2">
+                                <p id="lb-player-name" class="text-primary tracking-tight text-3xl font-bold">—</p>
+                            </div>
+                        </div>
+                        <div
+                            class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Global Players</p>
+                            <p class="text-slate-900 tracking-tight text-3xl font-bold">42,801</p>
+                        </div>
+                        <div
+                            class="flex min-w-[158px] flex-1 flex-col gap-2 rounded-xl p-6 bg-primary/5 border border-primary/10">
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Season Ends</p>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary size-5">timer</span>
+                                <p class="text-slate-900 tracking-tight text-2xl font-bold">14d 06h</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OVERLAYS -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"></div>
+
+    <div id="levelup-popup"
+        class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div
+            class="bg-white rounded-3xl shadow-2xl p-12 text-center max-w-sm mx-4 border-4 border-primary/30 animate-bounce-in">
+            <div id="levelup-badge" class="text-6xl mb-4">⭐</div>
+            <p class="font-pixel text-primary text-lg mb-2">LEVEL UP! ✦</p>
+            <p id="levelup-title" class="text-slate-600 font-bold text-xl mb-6"></p>
+            <button onclick="document.getElementById('levelup-popup').classList.add('hidden')"
+                class="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primary/90 active:scale-95 transition-all">Awesome!
+                🚀</button>
+        </div>
+    </div>
+
+    <div id="round-interstitial"
+        class="fixed inset-0 z-[9997] flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 text-center max-w-sm mx-4 border-2 border-primary/20">
+            <p class="font-pixel text-primary text-base mb-2" id="interstitial-title">ROUND 1 COMPLETE</p>
+            <p class="text-slate-500 text-sm mb-4" id="interstitial-xp">+150 XP earned this round</p>
+            <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden mb-4">
+                <div id="interstitial-bar" class="bg-primary h-full transition-all duration-500" style="width:30%">
+                </div>
+            </div>
+            <p class="text-xs text-slate-400 font-pixel">NEXT ROUND STARTING...</p>
+        </div>
+    </div>
+
+    <!-- HOW TO PLAY MODAL -->
+    <div id="howtoplay-modal"
+        class="fixed inset-0 z-[9998] flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div
+            class="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full mx-4 border-2 border-primary/20 max-h-[85vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white text-xl">🎮
+                    </div>
+                    <h2 class="font-pixel text-lg text-primary">HOW TO PLAY</h2>
+                </div>
+                <button id="close-howtoplay"
+                    class="size-10 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-all">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-primary/5 rounded-2xl p-5 border border-primary/10">
+                    <h3 class="font-bold text-primary mb-2 flex items-center gap-2"><span class="text-xl">🎯</span> Goal
+                    </h3>
+                    <p class="text-sm text-slate-600 leading-relaxed">A buggy code snippet is given to all players.
+                        <strong>Crewmates</strong> must find and fix the bug. <strong>The Impostor</strong> must
+                        secretly sabotage the code without getting caught.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-mint/5 rounded-2xl p-5 border border-mint/20">
+                        <h3 class="font-bold text-mint mb-3 flex items-center gap-2"><span class="text-xl">🟢</span> As
+                            Crewmate</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex gap-2"><span>1.</span> Read the buggy code in the editor</li>
+                            <li class="flex gap-2"><span>2.</span> Edit the code to fix the bug</li>
+                            <li class="flex gap-2"><span>3.</span> Click <strong>Submit Fix</strong> to check your
+                                answer</li>
+                            <li class="flex gap-2"><span>4.</span> Watch for code changes you didn't make</li>
+                            <li class="flex gap-2"><span>5.</span> Call <strong>Emergency Meeting</strong> to vote out
+                                suspects</li>
+                        </ul>
+                    </div>
+                    <div class="bg-coral/5 rounded-2xl p-5 border border-coral/20">
+                        <h3 class="font-bold text-coral mb-3 flex items-center gap-2"><span class="text-xl">🔴</span> As
+                            Impostor</h3>
+                        <ul class="text-sm text-slate-600 space-y-2">
+                            <li class="flex gap-2"><span>1.</span> Blend in — pretend to fix the code</li>
+                            <li class="flex gap-2"><span>2.</span> Click <strong>Sabotage</strong> to mutate the code
+                            </li>
+                            <li class="flex gap-2"><span>3.</span> 5 sabotage types: swap operators, flip math,
+                                off-by-one, comment return, rename vars</li>
+                            <li class="flex gap-2"><span>4.</span> Get <strong>3 sabotages</strong> through to win!</li>
+                            <li class="flex gap-2"><span>5.</span> Survive the vote — deflect suspicion in chat</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-golden/5 rounded-2xl p-5 border border-golden/20">
+                    <h3 class="font-bold text-golden mb-3 flex items-center gap-2"><span class="text-xl">⚡</span> Game
+                        Flow</h3>
+                    <div class="grid grid-cols-3 gap-3 text-center text-sm">
+                        <div class="bg-white rounded-xl p-3 border border-golden/10">
+                            <p class="font-pixel text-[10px] text-golden mb-1">PHASE 1</p>
+                            <p class="font-bold">Coding</p>
+                            <p class="text-slate-400 text-xs">90 seconds to code</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-3 border border-golden/10">
+                            <p class="font-pixel text-[10px] text-golden mb-1">PHASE 2</p>
+                            <p class="font-bold">Voting</p>
+                            <p class="text-slate-400 text-xs">Discuss & vote</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-3 border border-golden/10">
+                            <p class="font-pixel text-[10px] text-golden mb-1">PHASE 3</p>
+                            <p class="font-bold">Results</p>
+                            <p class="text-slate-400 text-xs">Ejection & XP</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200">
+                    <h3 class="font-bold text-slate-700 mb-3 flex items-center gap-2"><span class="text-xl">🏆</span> XP
+                        & Levels</h3>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-slate-600">
+                        <p>✅ Correct Fix: <strong class="text-primary">+50 XP</strong></p>
+                        <p>💣 Sabotage: <strong class="text-primary">+40 XP</strong></p>
+                        <p>🗳️ Correct Vote: <strong class="text-primary">+30 XP</strong></p>
+                        <p>🛡️ Survived Vote: <strong class="text-primary">+60 XP</strong></p>
+                        <p>🟢 Civilian Win: <strong class="text-primary">+100 XP</strong></p>
+                        <p>🔴 Impostor Win: <strong class="text-primary">+150 XP</strong></p>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-3">Every 200 XP = Level Up! Titles: Junior Dev → Code Reviewer →
+                        Senior Engineer → Architect → 10x Dev</p>
+                </div>
+            </div>
+
+            <button id="close-howtoplay-bottom"
+                class="w-full mt-6 bg-primary text-white py-3 rounded-xl font-bold hover:bg-primary/90 active:scale-95 transition-all">Got
+                it, let's play! 🚀</button>
+        </div>
+    </div>
+
+    <script id="game-script">
+            /* =========================================================
+       CODE AMONG US — FULL GAME ENGINE
+       ========================================================= */
+            (function () {
+                'use strict';
+
+                // ── CONFIG ──────────────────────────────────────────────────
+                const TITLES = ['Junior Dev', 'Code Reviewer', 'Senior Engineer', 'Architect', '10x Dev'];
+                const BOT_NAMES = ['null_pointer', 'sudo_sam', '404_felix', 'git_blame_greta', 'merge_max',
+                    'overflow_olga', 'segfault_steve', 'infinite_ivan', 'heap_helen', 'stack_sara',
+                    'binary_bob', 'regex_rex', 'async_amy', 'callback_carl', 'promise_petra'];
+                const BOT_COLORS = ['#c4b5fd', '#fda4af', '#86efac', '#fcd34d', '#67e8f9', '#f9a8d4'];
+                const BOT_EMOJIS = ['🤖', '👾', '🦾', '🧬', '⚡', '🔮'];
+                const PLAYER_EMOJI = '🧑‍💻';
+                const CHAT_POOL = [
+                    'That code looks sus to me 👀', 'Why does the loop end at n-1? 🤨',
+                    'Bro I fixed mine in 2 seconds, someone\'s sandbagging',
+                    'The return statement smells fishy...', 'I\'ve been watching the editor and something changed',
+                    'Who called the emergency? I was just getting started',
+                    'Classic off-by-one, not naming names', 'This is giving me 2 AM debugging energy 😅',
+                    'Someone commented out that return, I saw it', 'Why is the comparison backwards?? 🚩',
+                    'I\'m not the imposter I promise 🥺', 'Anyone else getting runtime errors?',
+                    'The variable was renamed, check git blame', 'I\'m voting whoever submitted last',
+                    'Something mutated the arithmetic expression', 'Trust nobody. Especially the fast submitters.',
+                    'I fixed it, then it broke again. Sabotage.', 'The hint didn\'t match the actual bug 🤔',
+                    'Loop bounds are wrong. Classic imposter move.', 'I clocked the sabotage button being pressed',
+                    'Sus behavior in the bottom half of the code', 'Why is there a minus sign there now??',
+                    'Who touched the return statement 👁️', 'I\'m a civilian, I fixed it correctly',
+                    'My submission got rejected twice, something\'s wrong',
+                    'The diff shows a change nobody claimed', 'Comparing floats with == that\'s a crime anyway',
+                    'Red flag: the variable is now called _x', 'I\'m skipping vote this round, not enough evidence',
+                    'Let the code speak for itself. Vote smart.'
+                ];
+                const FALLBACK_PROBLEMS = [
+                    {
+                        language: 'Python', topic: 'Sorting', difficulty: 'Easy',
+                        buggyCode: `def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] < arr[j+1]:  # BUG: should be >\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n    return arr`,
+                        correctCode: `def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]\n    return arr`,
+                        bugType: 'comparison', hint: 'Check the comparison operator in the inner loop.', explanation: 'Using < sorts descending. Use > for ascending.'
+                    },
+                    {
+                        language: 'JavaScript', topic: 'Arrays', difficulty: 'Easy',
+                        buggyCode: `function findMax(arr) {\n  let max = arr[0];\n  for (let i = 0; i < arr.length; i--) {\n    // BUG: i-- instead of i++\n    if (arr[i] > max) max = arr[i];\n  }\n  return max;\n}`,
+                        correctCode: `function findMax(arr) {\n  let max = arr[0];\n  for (let i = 0; i < arr.length; i++) {\n    if (arr[i] > max) max = arr[i];\n  }\n  return max;\n}`,
+                        bugType: 'arithmetic', hint: 'Look at the loop increment direction.', explanation: 'i-- creates an infinite loop. Change to i++.'
+                    },
+                    {
+                        language: 'Python', topic: 'Recursion', difficulty: 'Medium',
+                        buggyCode: `def factorial(n):\n    if n == 0:\n        return 0  # BUG: should return 1\n    return n * factorial(n - 1)`,
+                        correctCode: `def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n - 1)`,
+                        bugType: 'wrong-value', hint: 'What should factorial(0) return?', explanation: 'Base case should return 1, not 0.'
+                    },
+                    {
+                        language: 'JavaScript', topic: 'Data Structures', difficulty: 'Easy',
+                        buggyCode: `function reverseString(str) {\n  let result = "";\n  for (let i = str.length; i >= 0; i--) {\n    // BUG: starts at length not length-1\n    result += str[i];\n  }\n  return result;\n}`,
+                        correctCode: `function reverseString(str) {\n  let result = "";\n  for (let i = str.length - 1; i >= 0; i--) {\n    result += str[i];\n  }\n  return result;\n}`,
+                        bugType: 'off-by-one', hint: 'String indices start at 0 and end at length-1.', explanation: 'str[str.length] is undefined. Start from str.length - 1.'
+                    },
+                    {
+                        language: 'Python', topic: 'Arrays', difficulty: 'Easy',
+                        buggyCode: `def sum_list(arr):\n    total = 1  # BUG: should start at 0\n    for num in arr:\n        total += num\n    return total`,
+                        correctCode: `def sum_list(arr):\n    total = 0\n    for num in arr:\n        total += num\n    return total`,
+                        bugType: 'wrong-value', hint: 'What should the initial value of total be?', explanation: 'Starting at 1 adds an extra 1 to the sum.'
+                    },
+                    {
+                        language: 'JavaScript', topic: 'OOP', difficulty: 'Medium',
+                        buggyCode: `class Counter {\n  constructor() {\n    this.count = 0;\n  }\n  increment() {\n    count++;  // BUG: missing this.\n  }\n  getCount() {\n    return this.count;\n  }\n}`,
+                        correctCode: `class Counter {\n  constructor() {\n    this.count = 0;\n  }\n  increment() {\n    this.count++;\n  }\n  getCount() {\n    return this.count;\n  }\n}`,
+                        bugType: 'scope', hint: 'Check how instance properties are accessed inside methods.', explanation: 'Must use this.count, not just count.'
+                    },
+                    {
+                        language: 'Python', topic: 'Sorting', difficulty: 'Medium',
+                        buggyCode: `def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low < high:  # BUG: should be <=\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1`,
+                        correctCode: `def binary_search(arr, target):\n    low, high = 0, len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return -1`,
+                        bugType: 'comparison', hint: 'What happens when low equals high?', explanation: 'Using < misses the case when the target is at the last remaining position.'
+                    },
+                    {
+                        language: 'JavaScript', topic: 'APIs', difficulty: 'Medium',
+                        buggyCode: `async function fetchUser(id) {\n  const response = await fetch(\`/api/users/\${id}\`);\n  const data = response.json();  // BUG: missing await\n  return data.name;\n}`,
+                        correctCode: `async function fetchUser(id) {\n  const response = await fetch(\`/api/users/\${id}\`);\n  const data = await response.json();\n  return data.name;\n}`,
+                        bugType: 'async', hint: '.json() returns a Promise. How do you resolve it?', explanation: 'response.json() is async and needs await.'
+                    },
+                    {
+                        language: 'Python', topic: 'Data Structures', difficulty: 'Hard',
+                        buggyCode: `def is_palindrome(s):\n    s = s.lower()\n    left, right = 0, len(s)  # BUG: should be len(s)-1\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        right -= 1\n    return True`,
+                        correctCode: `def is_palindrome(s):\n    s = s.lower()\n    left, right = 0, len(s) - 1\n    while left < right:\n        if s[left] != s[right]:\n            return False\n        left += 1\n        right -= 1\n    return True`,
+                        bugType: 'off-by-one', hint: 'Check the initial value of right pointer.', explanation: 'len(s) is out of bounds. Use len(s) - 1.'
+                    },
+                    {
+                        language: 'JavaScript', topic: 'Recursion', difficulty: 'Hard',
+                        buggyCode: `function fibonacci(n) {\n  if (n <= 0) return 0;\n  if (n === 1) return 1;\n  return fibonacci(n - 1) - fibonacci(n - 2);\n  // BUG: should be + not -\n}`,
+                        correctCode: `function fibonacci(n) {\n  if (n <= 0) return 0;\n  if (n === 1) return 1;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}`,
+                        bugType: 'arithmetic', hint: 'Fibonacci adds the two previous numbers.', explanation: 'Subtraction gives wrong results. Use addition.'
+                    }
+                ];
+
+                // ── STATE ────────────────────────────────────────────────────
+                const gs = {
+                    screen: 'lobby',
+                    round: 1, maxRounds: 3,
+                    player: { name: '', color: BOT_COLORS[0], emoji: PLAYER_EMOJI, xp: 0, level: 0, title: 'Junior Dev', isImposter: false, alive: true, voteTarget: null },
+                    bots: [],
+                    problem: { language: 'JavaScript', topic: 'Sorting', difficulty: 'Easy', buggyCode: '', correctCode: '', hint: '', explanation: '' },
+                    sabotage: { count: 0, usedTypes: [] },
+                    timer: { secondsLeft: 90, handle: null },
+                    voteTimer: { secondsLeft: 90, handle: null },
+                    voting: { votes: {}, phase: false, selected: null },
+                    results: { outcome: null, ejected: null, xpBreakdown: [], xpEarned: 0 },
+                    chat: { messages: [] },
+                    settings: { lang: 'JavaScript', topic: 'Sorting', diff: 'Easy', role: 'random', botCount: 5 },
+                    roundXP: 0
+                };
+
+                // ── SCREEN MANAGER ───────────────────────────────────────────
+                function transitionTo(name) {
+                    document.querySelector('.screen.active')?.classList.remove('active');
+                    gs.screen = name;
+                    const screenEl = document.getElementById('screen-' + name);
+                    if (screenEl) screenEl.classList.add('active');
+                    // Direct dispatch — functions are scoped inside IIFE, not on window
+                    switch (name) {
+                        case 'lobby': onEnter_lobby(); break;
+                        case 'game': onEnter_game(); break;
+                        case 'voting': onEnter_voting(); break;
+                        case 'results': onEnter_results(); break;
+                        case 'leaderboard': onEnter_leaderboard(); break;
+                    }
+                }
+
+                // ── TOAST SYSTEM ─────────────────────────────────────────────
+                function showToast(msg, type = 'info', dur = 3000) {
+                    const c = document.getElementById('toast-container');
+                    const t = document.createElement('div');
+                    t.className = `toast toast-${type}`;
+                    t.innerHTML = msg;
+                    c.appendChild(t);
+                    setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300) }, dur);
+                }
+
+                // ── XP SYSTEM ────────────────────────────────────────────────
+                function addXP(amount, label) {
+                    const prev = gs.player.level;
+                    gs.player.xp += amount;
+                    gs.roundXP += amount;
+                    gs.results.xpEarned += amount;
+                    gs.results.xpBreakdown.push({ label, amount });
+                    const lv = Math.floor(gs.player.xp / 200);
+                    gs.player.level = Math.min(lv, 4);
+                    gs.player.title = TITLES[gs.player.level];
+                    updateXPUI();
+                    if (gs.player.level > prev) showLevelUp();
+                    showToast(`✨ +${amount} XP — ${label}`, 'xp', 2000);
+                }
+                function updateXPUI() {
+                    const xpInLevel = gs.player.xp % (200);
+                    el('xp-label').textContent = `${gs.player.xp} XP`;
+                    el('level-badge').textContent = gs.player.level;
+                    el('title-label').textContent = gs.player.title;
+                }
+                function showLevelUp() {
+                    const p = document.getElementById('levelup-popup');
+                    document.getElementById('levelup-title').textContent = gs.player.title;
+                    document.getElementById('levelup-badge').textContent = ['⭐', '🥈', '🥇', '🏆', '💎'][gs.player.level] || '⭐';
+                    p.classList.remove('hidden');
+                }
+
+                // ── HELPERS ──────────────────────────────────────────────────
+                function el(id) { return document.getElementById(id); }
+                function rand(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+                function pick(arr) { return arr[rand(0, arr.length - 1)]; }
+                function shuffle(arr) { return [...arr].sort(() => Math.random() - .5); }
+
+                // ── BOT FACTORY ──────────────────────────────────────────────
+                function createBots() {
+                    gs.bots = [];
+                    const count = gs.settings.botCount || 5;
+                    const names = shuffle(BOT_NAMES).slice(0, count);
+                    names.forEach((name, i) => {
+                        gs.bots.push({
+                            id: 'bot_' + i, name, color: BOT_COLORS[i % BOT_COLORS.length],
+                            emoji: BOT_EMOJIS[i % BOT_EMOJIS.length], alive: true, voteTarget: null,
+                            chatInterval: null, voteTimeout: null, isImposter: false, sabotageInterval: null,
+                            codingInterval: null, status: 'idle', fixCount: 0
+                        });
+                    });
+                    // Assign imposter based on lobby choice
+                    const pref = gs.settings.role;
+                    if (pref === 'impostor') {
+                        gs.player.isImposter = true;
+                    } else if (pref === 'crewmate') {
+                        gs.player.isImposter = false;
+                        gs.bots[rand(0, gs.bots.length - 1)].isImposter = true;
+                    } else {
+                        // random
+                        const impIdx = rand(0, gs.bots.length);
+                        if (impIdx === 0) {
+                            gs.player.isImposter = true;
+                        } else {
+                            gs.player.isImposter = false;
+                            gs.bots[impIdx - 1].isImposter = true;
+                        }
+                    }
+                }
+                function startBotChats() {
+                    gs.bots.forEach(b => {
+                        const delay = rand(5000, 15000);
+                        b.chatInterval = setInterval(() => {
+                            if (!b.alive) return;
+                            appendChatMsg(b.name, pick(CHAT_POOL), b.color, false);
+                        }, rand(12000, 25000));
+                        setTimeout(() => {
+                            if (b.alive) appendChatMsg(b.name, pick(CHAT_POOL), b.color, false);
+                        }, delay);
+                    });
+                }
+                function stopBotChats() {
+                    gs.bots.forEach(b => { if (b.chatInterval) { clearInterval(b.chatInterval); b.chatInterval = null; } });
+                }
+
+                // ── BOT CODING ACTIVITY ─────────────────────────────────
+                const BOT_CODING_MSGS = [
+                    'is reviewing the code...', 'is reading the bug report...', 'is tracing the logic...',
+                    'is editing line {line}...', 'is running test cases...', 'is checking the diff...',
+                    'is compiling...', 'is debugging variable scope...', 'is refactoring...',
+                    'found something suspicious...', 'is comparing with correct output...'
+                ];
+                const BOT_FIX_SUCCESS_MSGS = [
+                    'submitted a fix ✅', 'thinks they found the bug!', 'pushed a patch ✅',
+                    'fixed a syntax error', 'corrected the logic ✅'
+                ];
+                const BOT_FIX_FAIL_MSGS = [
+                    'submitted a fix ❌ (rejected)', 'patch failed tests ❌', 'fix was incorrect ❌',
+                    'got a compile error ❌', 'reverted their changes'
+                ];
+                function startBotCoding() {
+                    gs.bots.forEach(b => {
+                        if (!b.alive) return;
+                        // Each bot "codes" on a random interval
+                        b.codingInterval = setInterval(() => {
+                            if (!b.alive || gs.voting.phase || gs.screen !== 'game') return;
+                            const action = rand(1, 100);
+                            if (action <= 40) {
+                                // Bot is coding (status update)
+                                b.status = 'coding';
+                                const msg = pick(BOT_CODING_MSGS).replace('{line}', rand(1, 15));
+                                appendChatMsg('SYSTEM', `💻 ${b.name} ${msg}`, '', '', 'chat-messages');
+                                renderPlayerList();
+                            } else if (action <= 70) {
+                                // Bot submits a fix attempt
+                                b.status = 'submitting';
+                                renderPlayerList();
+                                const success = rand(1, 100) <= (b.isImposter ? 20 : 50);
+                                setTimeout(() => {
+                                    if (success) {
+                                        b.status = 'fixed';
+                                        b.fixCount++;
+                                        appendChatMsg('SYSTEM', `📝 ${b.name} ${pick(BOT_FIX_SUCCESS_MSGS)}`, '', '', 'chat-messages');
+                                    } else {
+                                        b.status = 'failed';
+                                        appendChatMsg('SYSTEM', `📝 ${b.name} ${pick(BOT_FIX_FAIL_MSGS)}`, '', '', 'chat-messages');
+                                    }
+                                    renderPlayerList();
+                                    // Reset status after a bit
+                                    setTimeout(() => { b.status = 'idle'; renderPlayerList(); }, 3000);
+                                }, rand(1500, 3000));
+                            } else {
+                                // Bot is idle / thinking
+                                b.status = 'idle';
+                                renderPlayerList();
+                            }
+                        }, rand(8000, 18000));
+                    });
+                }
+                function stopBotCoding() {
+                    gs.bots.forEach(b => { if (b.codingInterval) { clearInterval(b.codingInterval); b.codingInterval = null; } });
+                }
+
+                // ── CHAT ─────────────────────────────────────────────────────
+                function appendChatMsg(sender, text, color, isSelf, container = 'chat-messages') {
+                    const c = el(container);
+                    if (!c) return;
+                    const wrap = document.createElement('div');
+                    if (sender === 'SYSTEM') {
+                        wrap.className = 'flex justify-center';
+                        wrap.innerHTML = `<span class="chat-bubble-system">${text}</span>`;
+                    } else if (isSelf) {
+                        wrap.className = 'flex flex-col items-end gap-1';
+                        wrap.innerHTML = `<span class="text-[10px] font-bold mr-2" style="color:#7f6bff">You</span>
+      <div class="chat-bubble-self">${text}</div>`;
+                    } else {
+                        wrap.className = 'flex flex-col items-start gap-1';
+                        wrap.innerHTML = `<span class="text-[10px] font-bold ml-2" style="color:${color || '#64748b'}">${sender}</span>
+      <div class="chat-bubble-other">${text}</div>`;
+                    }
+                    c.appendChild(wrap);
+                    c.scrollTop = c.scrollHeight;
+                    // mirror to voting chat if active
+                    if (container === 'chat-messages' && gs.voting.phase) {
+                        appendChatMsg(sender, text, color, isSelf, 'voting-chat-messages');
+                    }
+                }
+                function sendPlayerChat(inputId, containerEl) {
+                    const inp = el(inputId);
+                    const txt = inp.value.trim();
+                    if (!txt) return;
+                    appendChatMsg(gs.player.name || 'You', txt, '#7f6bff', true, containerEl);
+                    inp.value = '';
+                }
+
+                // ── LINE NUMBERS ─────────────────────────────────────────────
+                function updateLineNumbers() {
+                    const ta = el('code-input');
+                    const ln = el('line-numbers');
+                    if (!ta || !ln) return;
+                    const lines = ta.value.split('\n').length;
+                    ln.innerHTML = Array.from({ length: lines }, (_, i) => i + 1).join('<br>');
+                }
+
+                // ── PLAYER LIST (GAME SCREEN) ─────────────────────────────────
+                function renderPlayerList() {
+                    const c = el('player-list-game');
+                    if (!c) return;
+                    c.innerHTML = '';
+                    const allPlayers = [{ ...gs.player, isPlayer: true, status: 'you' }, ...gs.bots];
+                    const alive = allPlayers.filter(p => p.alive).length;
+                    el('alive-count').textContent = `${alive}/${allPlayers.length} Alive`;
+                    allPlayers.forEach(p => {
+                        const row = document.createElement('div');
+                        row.className = 'player-row' + ((!p.alive) ? ' eliminated-row' : '');
+                        let statusLabel = '', statusClass = '';
+                        if (!p.alive) { statusLabel = '💀 Out'; statusClass = 'bg-slate-100 text-slate-400 italic opacity-60'; }
+                        else if (p.isPlayer) { statusLabel = '✓ Active'; statusClass = 'bg-mint/10 text-mint'; }
+                        else if (p.status === 'coding') { statusLabel = '💻 Coding...'; statusClass = 'bg-golden/10 text-golden'; }
+                        else if (p.status === 'submitting') { statusLabel = '⏳ Submitting...'; statusClass = 'bg-primary/10 text-primary'; }
+                        else if (p.status === 'fixed') { statusLabel = '✅ Fixed!'; statusClass = 'bg-mint/10 text-mint'; }
+                        else if (p.status === 'failed') { statusLabel = '❌ Failed'; statusClass = 'bg-coral/10 text-coral'; }
+                        else { statusLabel = '✓ Active'; statusClass = 'bg-mint/10 text-mint'; }
+                        row.innerHTML = `<div class="flex items-center gap-2">
+      <div class="player-avatar" style="background:${p.color}22;border:1.5px solid ${p.color}">${p.emoji || '👤'}</div>
+      <div><p class="text-sm font-bold leading-none mb-0.5">${p.name || (p.isPlayer ? 'You' : 'Bot')}</p>
+        <p class="text-[10px] text-slate-400">${p.isPlayer ? 'YOU' : 'Bot'}${p.fixCount > 0 ? ' • ' + p.fixCount + ' fixes' : ''}</p></div></div>
+      <span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusClass}">${statusLabel}</span>`;
+                        c.appendChild(row);
+                    });
+                }
+
+                // ── PROBLEM PICKER (hardcoded) ──────────────────────────────
+                function fetchProblem() {
+                    const lang = gs.settings.lang, topic = gs.settings.topic, diff = gs.settings.diff;
+                    // Try to match language, then topic, then difficulty
+                    let pool = FALLBACK_PROBLEMS.filter(p => p.language.toLowerCase() === lang.toLowerCase());
+                    if (!pool.length) pool = FALLBACK_PROBLEMS.filter(p => p.topic.toLowerCase() === topic.toLowerCase());
+                    if (!pool.length) pool = FALLBACK_PROBLEMS.filter(p => p.difficulty.toLowerCase() === diff.toLowerCase());
+                    if (!pool.length) pool = FALLBACK_PROBLEMS;
+                    // Avoid repeating last problem if possible
+                    if (pool.length > 1 && gs.problem.buggyCode) {
+                        pool = pool.filter(p => p.buggyCode !== gs.problem.buggyCode);
+                        if (!pool.length) pool = FALLBACK_PROBLEMS;
+                    }
+                    const chosen = pick(pool);
+                    loadProblem({ ...chosen, language: lang, topic, difficulty: diff });
+                    showToast('🧩 Challenge loaded!', 'info', 2000);
+                }
+                function loadProblem(p) {
+                    gs.problem = { ...gs.problem, ...p };
+                    el('code-input').value = p.buggyCode;
+                    updateLineNumbers();
+                    el('topic-chip').textContent = `Topic: ${p.topic || gs.settings.topic}`;
+                    el('lang-chip').textContent = p.language || gs.settings.lang;
+                    const diffMap = { Easy: 'Easy 🟢', Medium: 'Medium 🟡', Hard: 'Hard 🔴' };
+                    el('difficulty-badge').textContent = diffMap[p.difficulty || gs.settings.diff] || p.difficulty;
+                }
+
+                // ── FIX VALIDATION ───────────────────────────────────────────
+                function tokenize(s) {
+                    return s.toLowerCase().replace(/\s+/g, ' ').trim().split(/([{}();,=+\-*/<>!&|^~%])/).flatMap(t => t.split(' ')).filter(Boolean);
+                }
+                function jaccardSim(a, b) {
+                    const sa = new Set(a), sb = new Set(b);
+                    let inter = 0;
+                    sa.forEach(t => { if (sb.has(t)) inter++; });
+                    const union = new Set([...a, ...b]).size;
+                    return union === 0 ? 1 : inter / union;
+                }
+                function validateFix() {
+                    const userCode = el('code-input').value;
+                    const correct = gs.problem.correctCode;
+                    if (!correct) { showToast('No correct solution loaded yet', 'info'); return; }
+                    const sim = jaccardSim(tokenize(userCode), tokenize(correct));
+                    const hintEl = el('hint-chip');
+                    if (sim >= 0.85) {
+                        showToast('✅ Fix Accepted! Great debugging!', 'success', 3500);
+                        addXP(50, 'Correct Fix Submitted');
+                        hintEl.classList.add('hidden');
+                        appendChatMsg('SYSTEM', '✅ A fix was submitted and accepted!', '', '', 'chat-messages');
+                    } else {
+                        showToast('❌ Bug still present. Check your logic.', 'error', 3000);
+                        if (gs.problem.hint) {
+                            hintEl.textContent = '💡 Hint: ' + gs.problem.hint;
+                            hintEl.classList.remove('hidden');
+                        }
+                    }
+                }
+
+                // ── SABOTAGE SYSTEM ──────────────────────────────────────────
+                const SABOTAGE_TYPES = ['swapComparison', 'flipArithmetic', 'offByOne', 'commentReturn', 'renameVar'];
+                function doSabotage() {
+                    if (!gs.player.isImposter) { showToast('You are not the impostor!', 'error'); return; }
+                    const available = SABOTAGE_TYPES.filter(t => !gs.sabotage.usedTypes.includes(t));
+                    if (!available.length) { gs.sabotage.usedTypes = []; }
+                    const type = pick(available.length ? available : SABOTAGE_TYPES);
+                    gs.sabotage.usedTypes.push(type);
+                    let code = el('code-input').value;
+                    let mutated = code;
+                    if (type === 'swapComparison') mutated = code.replace(/(?<![=!<>])>(?!=)/, '<');
+                    else if (type === 'flipArithmetic') mutated = code.replace(/(?<![+\-])\+(?![+=])/, '-');
+                    else if (type === 'offByOne') mutated = code.replace(/(\b\d+\b)(\s*[;),])/, (_, n, s) => (parseInt(n) - 1) + s);
+                    else if (type === 'commentReturn') mutated = code.replace(/([ \t]*)(return )/, '$1// $2');
+                    else if (type === 'renameVar') { const m = code.match(/\b([a-z][a-zA-Z0-9_]{3,})\b/); if (m) mutated = code.replace(new RegExp('\\b' + m[1] + '\\b', 'g'), '_x'); }
+                    if (mutated === code) mutated = code.replace(/(\b\d+\b)/, n => parseInt(n) + 1);
+                    el('code-input').value = mutated;
+                    updateLineNumbers();
+                    gs.sabotage.count++;
+                    addXP(40, 'Successful Sabotage');
+                    showToast('💣 Sabotage deployed!', 'error', 2500);
+                    appendChatMsg('SYSTEM', '⚠️ Unusual activity detected in the codebase!', '', '', 'chat-messages');
+                    if (gs.sabotage.count >= 3) {
+                        setTimeout(() => endGame('imposterWins', null), 1500);
+                    }
+                }
+
+                // ── BOT IMPOSTER SABOTAGE (when player is civilian) ─────────
+                function startBotImposterSabotage() {
+                    const impBot = gs.bots.find(b => b.isImposter);
+                    if (!impBot) return;
+                    impBot.sabotageInterval = setInterval(() => {
+                        if (!impBot.alive || gs.voting.phase) return;
+                        let code = el('code-input').value;
+                        let mutated = code;
+                        const mutations = [
+                            () => code.replace(/(?<![=!<>])>(?!=)/, '<'),
+                            () => code.replace(/(?<![+\-])\+(?![+=])/, '-'),
+                            () => code.replace(/(\b\d+\b)(\s*[;),])/, (_, n, s) => (parseInt(n) - 1) + s),
+                            () => code.replace(/([ \t]*)(return )/, '$1// $2'),
+                            () => { const m = code.match(/\b([a-z][a-zA-Z0-9_]{3,})\b/); return m ? code.replace(new RegExp('\\b' + m[1] + '\\b', 'g'), '_x') : code; }
+                        ];
+                        mutated = pick(mutations)();
+                        if (mutated === code) mutated = code.replace(/(\b\d+\b)/, n => parseInt(n) + 1);
+                        if (mutated !== code) {
+                            el('code-input').value = mutated;
+                            updateLineNumbers();
+                            gs.sabotage.count++;
+                            appendChatMsg('SYSTEM', '⚠️ Unusual activity detected in the codebase!', '', '', 'chat-messages');
+                            appendChatMsg(impBot.name, pick(CHAT_POOL.slice(15)), impBot.color, false);
+                            if (gs.sabotage.count >= 3) {
+                                clearInterval(impBot.sabotageInterval);
+                                setTimeout(() => endGame('imposterWins', null), 1500);
+                            }
+                        }
+                    }, rand(20000, 40000));
+                }
+                function stopBotImposterSabotage() {
+                    gs.bots.forEach(b => { if (b.sabotageInterval) { clearInterval(b.sabotageInterval); b.sabotageInterval = null; } });
+                }
+
+                // ── ROUND TIMER ──────────────────────────────────────────────
+                function startRoundTimer() {
+                    gs.timer.secondsLeft = 90;
+                    clearInterval(gs.timer.handle);
+                    gs.timer.handle = setInterval(() => {
+                        gs.timer.secondsLeft--;
+                        const m = String(Math.floor(gs.timer.secondsLeft / 60)).padStart(2, '0');
+                        const s = String(gs.timer.secondsLeft % 60).padStart(2, '0');
+                        el('round-timer').querySelector('span:last-child').textContent = `${m}:${s}`;
+                        if (gs.timer.secondsLeft <= 0) {
+                            clearInterval(gs.timer.handle);
+                            appendChatMsg('SYSTEM', '⏰ Time is up! Emergency meeting called!', '', '', 'chat-messages');
+                            transitionTo('voting');
+                        }
+                    }, 1000);
+                }
+                function stopRoundTimer() { clearInterval(gs.timer.handle); }
+
+                // ── VOTING ───────────────────────────────────────────────────
+                function onEnter_voting() {
+                    stopBotChats();
+                    stopBotCoding();
+                    stopRoundTimer();
+                    el('chat-panel').classList.add('emergency-active');
+                    el('vote-grid').innerHTML = '';
+                    el('voting-chat-messages').innerHTML = '';
+                    gs.voting = { votes: {}, phase: true, selected: null };
+                    el('confirm-vote-btn').classList.add('hidden');
+                    el('confirm-vote-btn').disabled = false;
+                    el('confirm-vote-btn').textContent = '✓ Confirm Vote';
+                    const allPlayers = [{ id: 'player', name: gs.player.name || 'You', color: gs.player.color, emoji: gs.player.emoji, alive: gs.player.alive, isPlayer: true }, ...gs.bots];
+                    const alive = allPlayers.filter(p => p.alive);
+                    el('alive-count-vote').textContent = `${alive.length} Crew Alive`;
+                    alive.forEach(p => {
+                        const card = document.createElement('div');
+                        card.className = 'vote-card' + (p.isPlayer ? ' border-primary' : ' ');
+                        card.dataset.id = p.id;
+                        card.innerHTML = `
+      ${p.isPlayer ? '<div class="absolute top-1 right-1 bg-primary text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">YOU</div>' : ''}
+      <div class="relative inline-block">
+        <div class="w-16 h-16 rounded-xl mx-auto mb-2 flex items-center justify-center text-3xl" style="background:${p.color}33;border:2px solid ${p.color}">${p.emoji || '👤'}</div>
+      </div>
+      <p class="font-bold text-sm mb-1">${p.name}</p>
+      <div class="text-[10px] text-slate-400 font-bold uppercase mb-2" id="vote-count-${p.id}">0 VOTES</div>
+      <div class="px-3 py-1.5 bg-primary/10 text-primary text-xs font-pixel rounded-lg hover:bg-primary/20 transition-all cursor-pointer">VOTE</div>`;
+                        if (!p.isPlayer) card.style.position = 'relative';
+                        if (p.isPlayer) card.style.position = 'relative';
+                        card.addEventListener('click', () => selectVote(p.id));
+                        el('vote-grid').appendChild(card);
+                    });
+                    // bot votes after delay
+                    gs.bots.filter(b => b.alive).forEach(b => {
+                        const delay = rand(8000, 15000);
+                        b.voteTimeout = setTimeout(() => {
+                            if (!gs.voting.phase) return;
+                            const others = [{ id: 'player', alive: gs.player.alive }, ...gs.bots.filter(x => x.id !== b.id && x.alive)];
+                            const target = pick(others.filter(o => o.alive));
+                            if (!target) return;
+                            gs.voting.votes[target.id] = (gs.voting.votes[target.id] || 0) + 1;
+                            const vc = el(`vote-count-${target.id}`);
+                            if (vc) vc.textContent = `${gs.voting.votes[target.id]} VOTES`;
+                            appendChatMsg(b.name, pick(CHAT_POOL.slice(0, 15)), b.color, false, 'voting-chat-messages');
+                            checkAllVoted(alive.length);
+                        }, delay);
+                    });
+                    // vote timer
+                    gs.voteTimer.secondsLeft = 90;
+                    clearInterval(gs.voteTimer.handle);
+                    gs.voteTimer.handle = setInterval(() => {
+                        gs.voteTimer.secondsLeft--;
+                        const m = String(Math.floor(gs.voteTimer.secondsLeft / 60)).padStart(2, '0');
+                        const s = String(gs.voteTimer.secondsLeft % 60).padStart(2, '0');
+                        el('vote-timer').textContent = `${m}:${s}`;
+                        if (gs.voteTimer.secondsLeft <= 0) { clearInterval(gs.voteTimer.handle); tallyVotes(); }
+                    }, 1000);
+                }
+                function selectVote(targetId) {
+                    gs.voting.selected = targetId;
+                    document.querySelectorAll('.vote-card').forEach(c => c.classList.remove('selected'));
+                    document.querySelector(`.vote-card[data-id="${targetId}"]`)?.classList.add('selected');
+                    el('confirm-vote-btn').classList.remove('hidden');
+                }
+                function confirmVote() {
+                    const t = gs.voting.selected;
+                    if (!t) return;
+                    gs.voting.votes[t] = (gs.voting.votes[t] || 0) + 1;
+                    const vc = el(`vote-count-${t}`);
+                    if (vc) vc.textContent = `${gs.voting.votes[t]} VOTES`;
+                    gs.player.voteTarget = t;
+                    el('confirm-vote-btn').disabled = true;
+                    el('confirm-vote-btn').textContent = '✓ Voted';
+                    const alive = [{ id: 'player', alive: gs.player.alive }, ...gs.bots.filter(b => b.alive)];
+                    checkAllVoted(alive.length);
+                }
+                function checkAllVoted(aliveCount) {
+                    const totalVotes = Object.values(gs.voting.votes).reduce((a, b) => a + b, 0);
+                    if (totalVotes >= aliveCount - 1) setTimeout(tallyVotes, 1500);
+                }
+                function tallyVotes() {
+                    if (!gs.voting.phase) return;
+                    gs.voting.phase = false;
+                    clearInterval(gs.voteTimer.handle);
+                    const votes = gs.voting.votes;
+                    let maxVotes = 0, ejectedId = null;
+                    Object.entries(votes).forEach(([id, v]) => { if (v > maxVotes) { maxVotes = v; ejectedId = id; } });
+                    if (!ejectedId || maxVotes === 0) {
+                        showToast('No consensus — skip!', 'info');
+                        continueOrEnd();
+                        return;
+                    }
+                    // animate eject
+                    const card = document.querySelector(`.vote-card[data-id="${ejectedId}"]`);
+                    if (card) card.classList.add('ejecting');
+                    setTimeout(() => {
+                        let ejectedIsImposter = false;
+                        if (ejectedId === 'player') {
+                            gs.player.alive = false;
+                            ejectedIsImposter = gs.player.isImposter;
+                        } else {
+                            const bot = gs.bots.find(b => b.id === ejectedId);
+                            if (bot) { bot.alive = false; ejectedIsImposter = bot.isImposter; }
+                            if (gs.player.voteTarget === ejectedId) addXP(30, 'Correct Vote');
+                            addXP(60, 'Survived Vote');
+                        }
+                        if (ejectedIsImposter) {
+                            endGame('civiliansWin', ejectedId);
+                        } else {
+                            continueOrEnd();
+                        }
+                    }, 800);
+                }
+                function continueOrEnd() {
+                    if (gs.round < gs.maxRounds) {
+                        gs.round++;
+                        showRoundInterstitial();
+                    } else {
+                        endGame('imposterWins', null);
+                    }
+                }
+                function showRoundInterstitial() {
+                    const panel = el('round-interstitial');
+                    el('interstitial-title').textContent = `ROUND ${gs.round - 1} COMPLETE`;
+                    el('interstitial-xp').textContent = `+${gs.roundXP} XP earned this round`;
+                    gs.roundXP = 0;
+                    panel.classList.remove('hidden');
+                    setTimeout(() => {
+                        panel.classList.add('hidden');
+                        el('round-number').textContent = `Round ${gs.round} of ${gs.maxRounds}`;
+                        gs.results.xpBreakdown = [];
+                        transitionTo('game');
+                    }, 3000);
+                }
+
+                // ── END GAME ─────────────────────────────────────────────────
+                function endGame(outcome, ejectedId) {
+                    gs.voting.phase = false;
+                    stopBotChats();
+                    stopBotCoding();
+                    stopRoundTimer();
+                    stopBotImposterSabotage();
+                    clearInterval(gs.voteTimer.handle);
+                    // bonus XP based on player role + outcome
+                    if (outcome === 'civiliansWin' && !gs.player.isImposter) addXP(100, 'Civilian Victory!');
+                    else if (outcome === 'civiliansWin' && gs.player.isImposter) { /* imposter lost, no bonus */ }
+                    else if (outcome === 'imposterWins' && gs.player.isImposter) addXP(150, 'Imposter Victory!');
+                    else { /* civilian lost */ }
+                    gs.results.outcome = outcome;
+                    gs.results.ejected = ejectedId;
+                    saveToLeaderboard();
+                    transitionTo('results');
+                }
+
+                // ── RESULTS SCREEN ───────────────────────────────────────────
+                function onEnter_results() {
+                    const { outcome, ejected, xpBreakdown, xpEarned } = gs.results;
+                    const banner = el('outcome-banner');
+                    const badge = el('victory-badge'), title = el('outcome-title'), sub = el('outcome-subtitle');
+                    if (outcome === 'civiliansWin') {
+                        badge.className = 'inline-flex items-center justify-center px-4 py-1 rounded-full font-bold text-sm mb-2 uppercase tracking-widest bg-green-100 text-green-600 border border-green-200';
+                        badge.textContent = 'Victory';
+                        title.className = 'font-pixel text-4xl md:text-5xl leading-relaxed uppercase drop-shadow-sm text-green-500';
+                        title.textContent = 'BUG FIXED! CODE PUSHED ✓';
+                        sub.textContent = "The Impostor couldn't merge their malicious PR!";
+                    } else {
+                        badge.className = 'inline-flex items-center justify-center px-4 py-1 rounded-full font-bold text-sm mb-2 uppercase tracking-widest bg-coral/10 text-coral border border-coral/20';
+                        badge.textContent = 'Sabotage Successful';
+                        title.className = 'font-pixel text-4xl md:text-5xl leading-relaxed uppercase drop-shadow-sm text-coral';
+                        title.textContent = 'SABOTAGE SUCCESSFUL 💣';
+                        sub.textContent = 'The codebase has been corrupted. Civilians failed.';
+                    }
+                    el('results-level').textContent = gs.player.level;
+                    // ejected card
+                    if (ejected) {
+                        let ejName = 'Unknown', ejEmoji = '👤', ejColor = '#e8e6f4', ejRole = '';
+                        if (ejected === 'player') { ejName = gs.player.name || 'You'; ejEmoji = gs.player.emoji; ejColor = gs.player.color; ejRole = gs.player.isImposter ? 'Was the Impostor 🔴' : 'Was a Crewmate 🟢'; }
+                        else { const b = gs.bots.find(x => x.id === ejected); if (b) { ejName = b.name; ejEmoji = b.emoji; ejColor = b.color; ejRole = b.isImposter ? 'Was the Impostor 🔴' : 'Was a Crewmate 🟢'; } }
+                        el('ejected-avatar').textContent = ejEmoji;
+                        el('ejected-avatar').style.background = ejColor + '33';
+                        el('ejected-player-name').textContent = ejName + ' ejected';
+                        el('ejected-role-text').textContent = ejRole;
+                    }
+                    // XP breakdown
+                    const list = el('xp-breakdown-list');
+                    list.innerHTML = '';
+                    xpBreakdown.forEach(({ label, amount }) => {
+                        const row = document.createElement('div');
+                        row.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100';
+                        row.innerHTML = `<span class="font-medium text-sm">${label}</span><span class="font-bold text-primary">+${amount} XP</span>`;
+                        list.appendChild(row);
+                    });
+                    el('total-xp-earned').textContent = `${xpEarned} XP`;
+                }
+
+                // ── LEADERBOARD ──────────────────────────────────────────────
+                function saveToLeaderboard() {
+                    const key = 'codeAmongUs_leaderboard';
+                    let lb = [];
+                    try { lb = JSON.parse(localStorage.getItem(key) || '[]'); } catch { }
+                    lb.push({ name: gs.player.name || 'Anonymous', xp: gs.player.xp, level: gs.player.level, title: gs.player.title, date: new Date().toISOString().slice(0, 10) });
+                    lb.sort((a, b) => b.xp - a.xp);
+                    lb = lb.slice(0, 10);
+                    localStorage.setItem(key, JSON.stringify(lb));
+                }
+                function onEnter_leaderboard() {
+                    const key = 'codeAmongUs_leaderboard';
+                    let lb = [];
+                    try { lb = JSON.parse(localStorage.getItem(key) || '[]'); } catch { }
+                    // Podium (top 3)
+                    const podium = el('podium-cards');
+                    podium.innerHTML = '';
+                    const tiers = [{ cls: 'silver-card', label: '#2', border: '#C0C0C0' }, { cls: 'gold-card', label: 'RANK #1', border: '#FFD700' }, { cls: 'bronze-card', label: '#3', border: '#CD7F32' }];
+                    const podiumOrder = [lb[1], lb[0], lb[2]];
+                    podiumOrder.forEach((entry, i) => {
+                        const tier = tiers[i];
+                        const card = document.createElement('div');
+                        card.className = `podium-card ${tier.cls}`;
+                        if (entry) {
+                            card.innerHTML = `<div class="w-20 h-20 rounded-full flex items-center justify-center text-4xl" style="border:4px solid ${tier.border}">${['🥈', '🥇', '🥉'][i]}</div>
+        <div class="text-center"><p class="font-bold text-lg">${entry.name}</p><p class="text-xs text-slate-500 uppercase">${entry.title}</p></div>
+        <div class="px-4 py-1 rounded-full" style="background:${tier.border}22"><p class="font-bold text-sm" style="color:${tier.border}">${entry.xp} XP</p></div>
+        <p class="font-pixel text-xs" style="color:${tier.border}">${tier.label}</p>`;
+                        } else {
+                            card.innerHTML = `<div class="w-20 h-20 rounded-full flex items-center justify-center text-4xl bg-slate-100 text-slate-300">?</div><p class="text-slate-400 text-sm">No entry yet</p>`;
+                        }
+                        podium.appendChild(card);
+                    });
+                    // Table ranks 4-10
+                    const tbody = el('leaderboard-table');
+                    tbody.innerHTML = '';
+                    lb.slice(3).forEach((entry, i) => {
+                        const row = document.createElement('div');
+                        const isMyRow = entry.name === gs.player.name;
+                        row.className = `grid grid-cols-12 items-center gap-4 px-6 py-4 rounded-xl shadow-sm ${isMyRow ? 'bg-primary/10 border-2 border-primary/30' : 'bg-white border border-slate-100'}`;
+                        row.innerHTML = `<div class="col-span-1 font-pixel text-xs ${isMyRow ? 'text-primary' : 'text-slate-400'}">${String(i + 4).padStart(2, '0')}</div>
+      <div class="col-span-4 flex items-center gap-2"><div class="size-8 rounded-full bg-primary/20 flex items-center justify-center text-sm">🧑‍💻</div><span class="font-semibold ${isMyRow ? 'text-primary' : ''}">${entry.name}</span></div>
+      <div class="col-span-3"><span class="text-[10px] ${isMyRow ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600'} px-2 py-1 rounded font-bold uppercase">${entry.title}</span></div>
+      <div class="col-span-2 text-sm font-bold ${isMyRow ? 'text-primary' : 'text-slate-600'}">${entry.xp}</div>
+      <div class="col-span-2 text-right font-bold ${isMyRow ? 'text-primary' : 'text-slate-400'}">Lv${entry.level}</div>`;
+                        tbody.appendChild(row);
+                    });
+                    const myRank = lb.findIndex(e => e.name === gs.player.name) + 1;
+                    el('lb-player-name').textContent = myRank > 0 ? `Rank #${myRank}` : 'Not ranked';
+                }
+
+                // ── LOBBY SCREEN HOOKS ────────────────────────────────────────
+                function onEnter_lobby() {
+                    // reset state for new game
+                    gs.round = 1; gs.player.alive = true; gs.player.voteTarget = null;
+                    gs.sabotage = { count: 0, usedTypes: [] };
+                    gs.results = { outcome: null, ejected: null, xpBreakdown: [], xpEarned: 0 };
+                    gs.chat.messages = [];
+                    gs.roundXP = 0;
+                    el('chat-messages').innerHTML = '';
+                    el('voting-chat-messages').innerHTML = '';
+                    el('hint-chip').classList.add('hidden');
+                    el('chat-panel').classList.remove('emergency-active');
+                    // Populate lobby player list with bots joining
+                    populateLobbyBots();
+                }
+                function populateLobbyBots() {
+                    const list = el('player-list');
+                    // Keep the first child ("You (Host)") and clear the rest
+                    const hostSlot = list.querySelector('div');
+                    list.innerHTML = '';
+                    if (hostSlot) list.appendChild(hostSlot);
+                    const count = gs.settings.botCount || 5;
+                    const names = shuffle(BOT_NAMES).slice(0, count);
+                    gs._lobbyBotNames = names; // remember for createBots
+                    names.forEach((name, i) => {
+                        const slot = document.createElement('div');
+                        slot.className = 'flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-lavender text-slate-400';
+                        slot.style.opacity = '0'; slot.style.transform = 'scale(0.8)';
+                        slot.style.transition = 'all 0.4s ease';
+                        slot.innerHTML = `<div class="w-6 h-6 rounded-full flex items-center justify-center text-xs" style="background:${BOT_COLORS[i % BOT_COLORS.length]}22;border:1.5px solid ${BOT_COLORS[i % BOT_COLORS.length]}">${BOT_EMOJIS[i % BOT_EMOJIS.length]}</div>
+                        <span class="text-sm font-bold" style="color:${BOT_COLORS[i % BOT_COLORS.length]}">${name}</span>`;
+                        list.appendChild(slot);
+                        // Animate each bot joining with a stagger
+                        setTimeout(() => {
+                            slot.style.opacity = '1'; slot.style.transform = 'scale(1)';
+                        }, 300 + i * 400);
+                    });
+                    // Update status text
+                    setTimeout(() => {
+                        el('lobby-status').textContent = `${count + 1} PLAYERS READY • PRESS START!`;
+                        el('lobby-status').style.color = '#22c997';
+                    }, 300 + count * 400);
+                }
+
+                // ── GAME SCREEN HOOKS ─────────────────────────────────────────
+                function onEnter_game() {
+                    if (gs.round === 1) createBots();
+                    renderPlayerList();
+                    el('round-number').textContent = `Round ${gs.round} of ${gs.maxRounds}`;
+                    el('code-input').value = '';
+                    updateLineNumbers();
+                    updateXPUI();
+                    el('hint-chip').classList.add('hidden');
+                    el('chat-panel').classList.remove('emergency-active');
+                    el('chat-messages').innerHTML = '';
+                    // Show/hide sabotage based on role
+                    el('sabotage-btn').style.display = gs.player.isImposter ? 'flex' : 'none';
+                    // Role reveal on round 1
+                    if (gs.round === 1) {
+                        if (gs.player.isImposter) {
+                            showToast('🔴 You are the IMPOSTOR! Sabotage the code without getting caught.', 'error', 5000);
+                            appendChatMsg('SYSTEM', '🎭 Roles assigned. The impostor is among us...', '', '', 'chat-messages');
+                        } else {
+                            showToast('🟢 You are a CREWMATE! Fix bugs and find the impostor.', 'success', 5000);
+                            appendChatMsg('SYSTEM', '🎭 Roles assigned. Find and vote out the impostor!', '', '', 'chat-messages');
+                        }
+                    }
+                    appendChatMsg('SYSTEM', '🚀 Round ' + gs.round + ' started! Fix the bug before time runs out!', '', '', 'chat-messages');
+                    startBotChats();
+                    startBotCoding();
+                    fetchProblem();
+                    startRoundTimer();
+                    // If player is civilian, bot imposter sabotages periodically
+                    if (!gs.player.isImposter) startBotImposterSabotage();
+                }
+
+
+                // ── WIRE UP EVENTS ────────────────────────────────────────────
+                document.addEventListener('DOMContentLoaded', () => {
+                    // Lobby: language select
+                    document.querySelectorAll('.lang-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active-lang', 'border-primary', 'bg-primary/10', 'text-primary'));
+                            btn.classList.add('active-lang', 'border-primary', 'bg-primary/10', 'text-primary');
+                            gs.settings.lang = btn.dataset.lang;
+                        });
+                    });
+                    // Lobby: topic select
+                    document.querySelectorAll('.topic-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.topic-btn').forEach(b => b.classList.remove('active-topic', 'border-primary', 'bg-primary/10', 'text-primary', 'border-2'));
+                            btn.classList.add('active-topic', 'border-2', 'border-primary', 'bg-primary/10', 'text-primary');
+                            gs.settings.topic = btn.dataset.topic;
+                        });
+                    });
+                    // Lobby: difficulty select
+                    document.querySelectorAll('.diff-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active-diff', 'border-mint/50', 'bg-mint/10', 'text-mint', 'border-golden/50', 'bg-golden/10', 'text-golden', 'border-coral/50', 'bg-coral/10', 'text-coral'));
+                            const map = { Easy: ['border-mint/50', 'bg-mint/10', 'text-mint'], Medium: ['border-golden/50', 'bg-golden/10', 'text-golden'], Hard: ['border-coral/50', 'bg-coral/10', 'text-coral'] };
+                            const cls = map[btn.dataset.diff] || map.Easy;
+                            btn.classList.add('active-diff', ...cls);
+                            gs.settings.diff = btn.dataset.diff;
+                        });
+                    });
+                    // Lobby: role select
+                    document.querySelectorAll('.role-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active-role', 'border-primary', 'bg-primary/10', 'text-primary', 'border-coral/50', 'bg-coral/10', 'text-coral', 'border-mint/50', 'bg-mint/10', 'text-mint'));
+                            const map = { random: ['border-primary', 'bg-primary/10', 'text-primary'], impostor: ['border-coral/50', 'bg-coral/10', 'text-coral'], crewmate: ['border-mint/50', 'bg-mint/10', 'text-mint'] };
+                            const cls = map[btn.dataset.role] || map.random;
+                            btn.classList.add('active-role', ...cls);
+                            gs.settings.role = btn.dataset.role;
+                        });
+                    });
+                    // Lobby: bot count select
+                    document.querySelectorAll('.botcount-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            document.querySelectorAll('.botcount-btn').forEach(b => b.classList.remove('active-botcount', 'border-primary', 'bg-primary/10', 'text-primary'));
+                            btn.classList.add('active-botcount', 'border-primary', 'bg-primary/10', 'text-primary');
+                            gs.settings.botCount = parseInt(btn.dataset.count);
+                            populateLobbyBots();
+                        });
+                    });
+                    // How to Play modal
+                    el('how-to-play-btn').addEventListener('click', () => el('howtoplay-modal').classList.remove('hidden'));
+                    el('close-howtoplay').addEventListener('click', () => el('howtoplay-modal').classList.add('hidden'));
+                    el('close-howtoplay-bottom').addEventListener('click', () => el('howtoplay-modal').classList.add('hidden'));
+                    el('howtoplay-modal').addEventListener('click', (e) => { if (e.target === el('howtoplay-modal')) el('howtoplay-modal').classList.add('hidden'); });
+                    // Start game
+                    el('start-game-btn').addEventListener('click', () => {
+                        const name = el('player-name-input').value.trim();
+                        if (!name) { showToast('Enter a username first!', 'error'); return; }
+                        gs.player.name = name;
+
+                        transitionTo('game');
+                    });
+                    // Lobby leaderboard
+                    el('lobby-leaderboard-btn').addEventListener('click', () => transitionTo('leaderboard'));
+                    // Code input: line numbers
+                    el('code-input').addEventListener('input', updateLineNumbers);
+                    el('code-input').addEventListener('keydown', (e) => {
+                        if (e.key === 'Tab') { e.preventDefault(); const s = el('code-input'); const start = s.selectionStart; const end = s.selectionEnd; s.value = s.value.substring(0, start) + '  ' + s.value.substring(end); s.selectionStart = s.selectionEnd = start + 2; updateLineNumbers(); }
+                    });
+                    // Submit fix
+                    el('submit-fix-btn').addEventListener('click', validateFix);
+                    // Flag btn (mock)
+                    el('flag-btn').addEventListener('click', () => showToast('🚩 Edit flagged for review', 'info'));
+                    // Sabotage
+                    el('sabotage-btn').addEventListener('click', doSabotage);
+                    // Emergency
+                    el('emergency-btn').addEventListener('click', () => {
+                        appendChatMsg('SYSTEM', `🚨 Emergency meeting called by ${gs.player.name || 'You'}!`, '', '', 'chat-messages');
+                        transitionTo('voting');
+                    });
+                    // Chat (game)
+                    el('chat-send-btn').addEventListener('click', () => sendPlayerChat('chat-input-field', 'chat-messages'));
+                    el('chat-input-field').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendPlayerChat('chat-input-field', 'chat-messages'); });
+                    // Chat (voting)
+                    el('voting-chat-send').addEventListener('click', () => sendPlayerChat('voting-chat-input', 'voting-chat-messages'));
+                    el('voting-chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') sendPlayerChat('voting-chat-input', 'voting-chat-messages'); });
+                    // Confirm vote
+                    el('confirm-vote-btn').addEventListener('click', confirmVote);
+                    // Skip vote
+                    el('skip-vote-btn').addEventListener('click', () => {
+                        gs.voting.selected = null;
+                        el('confirm-vote-btn').classList.add('hidden');
+                        const alive = [{ id: 'player', alive: gs.player.alive }, ...gs.bots.filter(b => b.alive)];
+                        checkAllVoted(alive.length);
+                    });
+                    // Results: play again
+                    el('play-again-btn').addEventListener('click', () => transitionTo('lobby'));
+                    // Results: view leaderboard
+                    el('view-leaderboard-btn').addEventListener('click', () => transitionTo('leaderboard'));
+                    // Leaderboard: back
+                    el('back-to-lobby-btn').addEventListener('click', () => transitionTo('lobby'));
+                    // init
+                    onEnter_lobby();
+                });
+
+            })(); // end IIFE
+    </script>
+</body>
+
+</html>
